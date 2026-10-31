@@ -1,0 +1,14 @@
+{
+  "name": "begentle",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Begentle WooCommerce theme",
+  "scripts": {
+    "dev": "tailwindcss -i ./src/css/main.css -o ./assets/css/main.css --watch",
+    "build": "tailwindcss -i ./src/css/main.css -o ./assets/css/main.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}
