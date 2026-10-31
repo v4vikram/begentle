@@ -15,7 +15,8 @@ Custom WooCommerce theme, men's fashion (jeans first, more categories later), Ge
 - Shop filters (`inc/filters.php`) use WooCommerce's own query vars (`min_price`, `max_price`, `filter_<attr>=a,b`) plus `on_sale` / `in_stock`. No filter plugin or widget. Size/colour chips are joined into the comma format by `assets/js/main.js`.
 - CSS cascade gotcha: our rules live in Tailwind's `@layer components`, and **unlayered CSS always beats layered CSS**. Anything that must override third-party CSS (select2, Woo Cart/Checkout blocks) goes in the unlayered section at the end of `src/css/main.css`.
 - My Account (`inc/account.php`): dashboard tiles, recent orders, order progress steps, all via hooks.
-- Cart and Checkout pages are **blocks** in this store (My Account is a shortcode). Block styling is intentionally light (buttons, radius, fonts).
+- Cart and Checkout pages are **blocks** in this store (My Account is a shortcode). Keep Woo's block layout and restyle the surface only. Block field selectors are very specific, so those few overrides use `!important`.
+- Grids that contain a horizontally scrolling child need `grid-template-columns: minmax(0, 1fr)`, otherwise the child stretches the page on phones. When testing with mobile emulation, compare `scrollWidth` with the viewport width: `window.innerWidth` grows with the page and hides this bug.
 - Local testing: the store is in WooCommerce "Coming soon" mode, so anonymous HTTP requests never reach the theme. Render pages through a CLI harness that adds `woocommerce_coming_soon_exclude` (do not change the store option).
 
 ## Not decided / not verified yet
