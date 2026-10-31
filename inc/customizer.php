@@ -18,6 +18,10 @@ function begentle_defaults(): array {
 		'value_2_text'  => __( 'Filter by size, colour and price in a tap.', 'begentle' ),
 		'value_3_title' => __( 'Fresh drops', 'begentle' ),
 		'value_3_text'  => __( 'See the newest styles first.', 'begentle' ),
+		// Shop page banner.
+		'shop_title'   => __( 'Shop all', 'begentle' ),
+		'shop_text'    => __( 'Every fit in one place. Filter by size, colour and price.', 'begentle' ),
+		'shop_image'   => '',
 		// Promo banner (hidden if the title is emptied).
 		'promo_title'  => __( 'Fresh fits just landed.', 'begentle' ),
 		'promo_text'   => __( 'Explore the latest styles in the shop.', 'begentle' ),
@@ -71,6 +75,14 @@ add_action(
 					'value_3_text'  => array( __( 'Card 3 text', 'begentle' ), 'text', 'sanitize_text_field' ),
 				),
 				array(),
+			),
+			'begentle_shop'  => array(
+				__( 'Shop page banner', 'begentle' ),
+				array(
+					'shop_title' => array( __( 'Title', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'shop_text'  => array( __( 'Text', 'begentle' ), 'textarea', 'sanitize_textarea_field' ),
+				),
+				array( 'shop_image' => __( 'Banner image (wide, at least 1600px; empty = product photos)', 'begentle' ) ),
 			),
 			'begentle_promo' => array(
 				__( 'Promo banner', 'begentle' ),

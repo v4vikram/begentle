@@ -513,6 +513,68 @@
 		object-fit: cover;
 		opacity: 0.6;
 	}
+	.shop-banner {
+		position: relative;
+		isolation: isolate;
+		display: grid;
+		gap: 1.25rem;
+		align-items: center;
+		overflow: hidden;
+		margin-bottom: 1rem;
+		padding: 1.75rem 1.25rem;
+		border-radius: 1.5rem;
+		background: var(--color-ink);
+		color: #fff;
+	}
+	.shop-banner.has-image {
+		min-height: 15rem;
+		align-items: end;
+	}
+	/* Keeps white text readable on any photo. */
+	.shop-banner.has-image::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(to top, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0.1));
+	}
+	.shop-banner__img {
+		position: absolute;
+		inset: 0;
+		z-index: -2;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.shop-banner__shots {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.5rem;
+	}
+	.shop-banner__shots img {
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+		border-radius: 0.75rem;
+	}
+	@media (min-width: 768px) {
+		.shop-banner {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			gap: 2.5rem;
+			padding: 2.5rem 3rem;
+		}
+		.shop-banner.has-image {
+			grid-template-columns: minmax(0, 1fr);
+			min-height: 22rem;
+			align-items: center;
+		}
+		.shop-banner.has-image::after {
+			background: linear-gradient(to right, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0));
+		}
+		.shop-banner__shots img {
+			aspect-ratio: 4 / 5;
+		}
+	}
 	.cat-pills {
 		display: flex;
 		gap: 0.5rem;

@@ -7,24 +7,7 @@ defined( 'ABSPATH' ) || exit;
 $has_woo    = begentle_has_woo();
 $shop_url   = $has_woo ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
 $hero_image = (int) begentle_mod( 'hero_image' );
-$collage    = array();
-
-if ( ! $hero_image && $has_woo ) {
-	$latest = wc_get_products(
-		array(
-			'limit'   => 8,
-			'status'  => 'publish',
-			'orderby' => 'date',
-			'order'   => 'DESC',
-		)
-	);
-
-	foreach ( $latest as $item ) {
-		if ( $item->get_image_id() && count( $collage ) < 3 ) {
-			$collage[] = $item;
-		}
-	}
-}
+$collage    = $hero_image ? array() : begentle_latest_with_images( 3 );
 ?>
 <section class="bg-mist">
 	<div class="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 md:grid-cols-2 md:gap-12 md:py-20">

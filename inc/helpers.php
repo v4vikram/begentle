@@ -66,6 +66,28 @@ function begentle_top_categories( int $limit = 8 ): array {
 }
 
 /**
+ * Newest products that have a photo.
+ *
+ * @return WC_Product[]
+ */
+function begentle_latest_with_images( int $limit = 3 ): array {
+	if ( ! begentle_has_woo() ) {
+		return array();
+	}
+
+	$products = wc_get_products(
+		array(
+			'limit'   => $limit * 3,
+			'status'  => 'publish',
+			'orderby' => 'date',
+			'order'   => 'DESC',
+		)
+	);
+
+	return array_slice( array_values( array_filter( $products, fn( $product ) => $product->get_image_id() ) ), 0, $limit );
+}
+
+/**
  * Cart count badge. Also returned as a Woo cart fragment (see inc/woo.php),
  * so the markup must keep the `begentle-cart-count` class.
  */
