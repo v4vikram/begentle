@@ -1,6 +1,7 @@
 <?php
 /**
- * Home: hero, categories, new drops.
+ * Home: hero, highlights, categories, new drops, promo banner, sale, best sellers.
+ * Optional sections render only when they have content.
  */
 defined( 'ABSPATH' ) || exit;
 
@@ -9,20 +10,32 @@ get_header();
 $has_woo    = begentle_has_woo();
 $shop_url   = $has_woo ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
 $hero_image = (int) begentle_mod( 'hero_image' );
+$categories = begentle_top_categories( 8 );
 
-$categories = array();
-if ( $has_woo ) {
-	$terms = get_terms(
-		array(
-			'taxonomy'   => 'product_cat',
-			'hide_empty' => true,
-			'parent'     => 0,
-			'exclude'    => array( (int) get_option( 'default_product_cat' ) ),
-			'number'     => 8,
-		)
-	);
-	$categories = is_wp_error( $terms ) ? array() : $terms;
-}
+$usps = array_filter(
+	array_map(
+		'trim',
+		array( (string) begentle_mod( 'usp_1' ), (string) begentle_mod( 'usp_2' ), (string) begentle_mod( 'usp_3' ) )
+	)
+);
+
+$promo_title = trim( (string) begentle_mod( 'promo_title' ) );
+$promo_image = (int) begentle_mod( 'promo_image' );
+$promo_url   = (string) begentle_mod( 'promo_url' );
+
+$has_sale = $has_woo && wc_get_product_ids_on_sale();
+
+$has_bestsellers = $has_woo && get_posts(
+	array(
+		'post_type'      => 'product',
+		'posts_per_page' => 1,
+		'fields'         => 'ids',
+		'meta_key'       => 'total_sales', // phpcs:ignore WordPress.DB.SlowDBQuery
+		'meta_value'     => 0, // phpcs:ignore WordPress.DB.SlowDBQuery
+		'meta_compare'   => '>',
+		'meta_type'      => 'NUMERIC',
+	)
+);
 ?>
 
 <section class="bg-mist">
@@ -56,9 +69,20 @@ if ( $has_woo ) {
 	</div>
 </section>
 
+<?php if ( $usps ) : ?>
+	<ul class="mx-auto grid max-w-7xl gap-x-6 gap-y-2 px-4 py-5 text-sm font-semibold sm:grid-cols-3">
+		<?php foreach ( $usps as $usp ) : ?>
+			<li class="flex items-center gap-2">
+				<?php echo begentle_icon( 'check', 'size-5 shrink-0 text-denim' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo esc_html( $usp ); ?>
+			</li>
+		<?php endforeach; ?>
+	</ul>
+<?php endif; ?>
+
 <?php if ( $categories ) : ?>
 	<section class="mx-auto max-w-7xl px-4 pt-10 md:pt-16" aria-labelledby="home-cats">
-		<h2 id="home-cats" class="mb-4 text-2xl font-extrabold tracking-tight"><?php esc_html_e( 'Shop by fit', 'begentle' ); ?></h2>
+		<?php begentle_section_head( 'home-cats', __( 'Shop by category', 'begentle' ), $shop_url, __( 'Shop all', 'begentle' ) ); ?>
 		<div class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0">
 			<?php
 			foreach ( $categories as $term ) :
@@ -86,11 +110,46 @@ if ( $has_woo ) {
 
 <?php if ( $has_woo ) : ?>
 	<section class="mx-auto max-w-7xl px-4 pt-10 md:pt-16" aria-labelledby="home-new">
-		<div class="mb-4 flex items-end justify-between">
-			<h2 id="home-new" class="text-2xl font-extrabold tracking-tight"><?php esc_html_e( 'New drops', 'begentle' ); ?></h2>
-			<a class="text-sm font-semibold underline underline-offset-4" href="<?php echo esc_url( $shop_url ); ?>"><?php esc_html_e( 'View all', 'begentle' ); ?></a>
-		</div>
+		<?php begentle_section_head( 'home-new', __( 'New drops', 'begentle' ), add_query_arg( 'orderby', 'date', $shop_url ), __( 'View all', 'begentle' ) ); ?>
 		<?php echo do_shortcode( '[products limit="8" columns="4" orderby="date" order="DESC"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	</section>
+<?php endif; ?>
+
+<?php if ( $promo_title ) : ?>
+	<section class="mx-auto max-w-7xl px-4 pt-10 md:pt-16" aria-label="<?php echo esc_attr( $promo_title ); ?>">
+		<div class="relative isolate overflow-hidden rounded-3xl bg-ink text-white">
+			<?php
+			if ( $promo_image ) {
+				echo wp_get_attachment_image( $promo_image, 'large', false, array( 'class' => 'absolute inset-0 -z-10 size-full object-cover opacity-60' ) );
+			}
+			?>
+			<div class="max-w-xl p-8 py-14 md:p-16">
+				<h2 class="text-3xl font-extrabold leading-tight tracking-tight md:text-5xl"><?php echo esc_html( $promo_title ); ?></h2>
+				<?php if ( begentle_mod( 'promo_text' ) ) : ?>
+					<p class="mt-3 text-base opacity-80"><?php echo esc_html( begentle_mod( 'promo_text' ) ); ?></p>
+				<?php endif; ?>
+				<?php if ( $promo_url ) : ?>
+					<a class="btn mt-6 !bg-white !text-ink hover:!bg-mist" href="<?php echo esc_url( $promo_url ); ?>">
+						<?php echo esc_html( begentle_mod( 'promo_cta' ) ); ?>
+						<?php echo begentle_icon( 'arrow', 'size-5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					</a>
+				<?php endif; ?>
+			</div>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php if ( $has_sale ) : ?>
+	<section class="mx-auto max-w-7xl px-4 pt-10 md:pt-16" aria-labelledby="home-sale">
+		<?php begentle_section_head( 'home-sale', __( 'On sale', 'begentle' ), add_query_arg( 'on_sale', '1', $shop_url ), __( 'View all', 'begentle' ) ); ?>
+		<?php echo do_shortcode( '[products on_sale="true" limit="4" columns="4"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	</section>
+<?php endif; ?>
+
+<?php if ( $has_bestsellers ) : ?>
+	<section class="mx-auto max-w-7xl px-4 pt-10 md:pt-16" aria-labelledby="home-best">
+		<?php begentle_section_head( 'home-best', __( 'Best sellers', 'begentle' ), add_query_arg( 'orderby', 'popularity', $shop_url ), __( 'View all', 'begentle' ) ); ?>
+		<?php echo do_shortcode( '[products best_selling="true" limit="4" columns="4"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	</section>
 <?php endif; ?>
 

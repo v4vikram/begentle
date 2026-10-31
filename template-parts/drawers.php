@@ -48,6 +48,10 @@ defined( 'ABSPATH' ) || exit;
 	</form>
 </aside>
 
+<?php if ( begentle_has_woo() && begentle_is_catalog() ) : ?>
+	<?php get_template_part( 'template-parts/filter-drawer' ); ?>
+<?php endif; ?>
+
 <?php if ( begentle_has_woo() ) : ?>
 	<aside id="drawer-cart" class="drawer" data-drawer="cart" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Your bag', 'begentle' ); ?>">
 		<div class="flex h-14 shrink-0 items-center justify-between border-b border-line pl-4 pr-2">

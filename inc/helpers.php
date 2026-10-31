@@ -16,6 +16,11 @@ function begentle_icon( string $name, string $class = 'size-6' ): string {
 		'user'   => '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>',
 		'close'  => '<path d="M6 6l12 12M18 6 6 18"/>',
 		'arrow'  => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+		'filter' => '<path d="M4 6h8M19 6h1M4 12h2M13 12h7M4 18h10M18 18h2"/><circle cx="15.5" cy="6" r="2.2"/><circle cx="9.5" cy="12" r="2.2"/><circle cx="16" cy="18" r="2.2"/>',
+		'orders' => '<path d="m3 8 9-5 9 5v8l-9 5-9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+		'pin'    => '<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/>',
+		'logout' => '<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>',
+		'check'  => '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 	);
 
 	if ( ! isset( $paths[ $name ] ) ) {
@@ -23,6 +28,41 @@ function begentle_icon( string $name, string $class = 'size-6' ): string {
 	}
 
 	return '<svg class="' . esc_attr( $class ) . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths[ $name ] . '</svg>';
+}
+
+/**
+ * Section heading row used on the home page: title on the left, optional link on the right.
+ */
+function begentle_section_head( string $id, string $title, string $url = '', string $link_label = '' ): void {
+	echo '<div class="mb-4 flex items-end justify-between gap-4">';
+	echo '<h2 id="' . esc_attr( $id ) . '" class="text-2xl font-extrabold tracking-tight md:text-3xl">' . esc_html( $title ) . '</h2>';
+	if ( $url && $link_label ) {
+		echo '<a class="shrink-0 text-sm font-semibold underline underline-offset-4" href="' . esc_url( $url ) . '">' . esc_html( $link_label ) . '</a>';
+	}
+	echo '</div>';
+}
+
+/**
+ * Top-level product categories (default "Uncategorized" excluded).
+ *
+ * @return WP_Term[]
+ */
+function begentle_top_categories( int $limit = 8 ): array {
+	if ( ! begentle_has_woo() ) {
+		return array();
+	}
+
+	$terms = get_terms(
+		array(
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => true,
+			'parent'     => 0,
+			'exclude'    => array( (int) get_option( 'default_product_cat' ) ),
+			'number'     => $limit,
+		)
+	);
+
+	return is_wp_error( $terms ) ? array() : $terms;
 }
 
 /**

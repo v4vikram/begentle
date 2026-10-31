@@ -197,6 +197,44 @@
 			});
 	});
 
+	/* ---------- 3b. Shop filter form ---------- */
+
+	// WooCommerce reads sizes/colours as one comma list (filter_size=28,30), so join the
+	// checkboxes into that, and keep empty fields out of the URL.
+	$(document).on('submit', '.filter-form', function () {
+		var $form = $(this);
+
+		$form.find('[data-attr]').each(function () {
+			var $group = $(this);
+			var values = $group
+				.find('input[type="checkbox"]:checked')
+				.map(function () {
+					return this.value;
+				})
+				.get();
+
+			if (values.length) {
+				$('<input type="hidden">')
+					.attr('name', 'filter_' + $group.attr('data-attr'))
+					.val(values.join(','))
+					.appendTo($form);
+			}
+			$group.find('input').prop('disabled', true);
+		});
+
+		$form.find('input[type="number"]').filter(function () {
+			return this.value === '';
+		}).prop('disabled', true);
+	});
+
+	// Back button restores the page from cache with our fields still disabled.
+	$(window).on('pageshow', function (e) {
+		if (e.originalEvent && e.originalEvent.persisted) {
+			$('.filter-form input').prop('disabled', false);
+			$('.filter-form input[type="hidden"][name^="filter_"]').remove();
+		}
+	});
+
 	/* ---------- 4. Sticky add-to-cart bar ---------- */
 
 	var $bar = $('#atc-bar');
