@@ -79,6 +79,18 @@
 		openDrawer('cart');
 	});
 
+	/* ---------- 1b. Home product tabs ---------- */
+
+	$(document).on('click', '[data-tabs] [role="tab"]', function () {
+		var $tab = $(this);
+		var $tabs = $tab.closest('[data-tabs]');
+
+		$tabs.find('[role="tab"]').attr('aria-selected', 'false');
+		$tab.attr('aria-selected', 'true');
+		$tabs.find('[role="tabpanel"]').prop('hidden', true);
+		$('#' + $tab.attr('aria-controls')).prop('hidden', false);
+	});
+
 	/* ---------- 2. Size swatches ---------- */
 
 	function initSwatches($form) {

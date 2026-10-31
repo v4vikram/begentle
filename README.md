@@ -22,7 +22,7 @@ functions.php        thin bootstrap
 inc/                 helpers, setup, enqueue, customizer, woo (card/product hooks),
                      filters (shop filters), account (My Account extras)
 template-parts/      drawers (menu/search/cart), filter-drawer, catalog-header, sticky add-to-cart bar
-front-page.php       home: hero, highlights, categories, new drops, promo, sale, best sellers
+front-page.php       home: lists the sections from template-parts/home/
 woocommerce.php      one wrapper for shop / category / product pages
 page.php             pages incl. cart, checkout, my account
 src/css/main.css     Tailwind v4 source + all Woo styling
@@ -31,7 +31,8 @@ assets/js/main.js    jQuery: drawers, size swatches, AJAX add to cart, sticky ba
 
 ## Customising
 
-Appearance, Customize, Begentle: announcement bar, hero, highlights strip (3 short lines) and promo banner.
-Optional sections (highlights, promo, sale, best sellers) stay hidden until they have content.
+Appearance, Customize, Begentle: announcement bar, ticker, hero, value cards and promo banner.
+Home sections live in `template-parts/home/` (order set in `front-page.php`). Reviews, Best sellers and On sale stay hidden until the store has that data.
+The spotlight section shows the first featured product, otherwise the latest one.
 Category tiles/banners use the category image (Products, Categories, thumbnail).
 Menus: assign "Primary" and "Footer" under Appearance, Menus (until then, fallbacks list Shop + categories).

@@ -4,17 +4,23 @@ defined( 'ABSPATH' ) || exit;
 function begentle_defaults(): array {
 	return array(
 		'announcement' => '',
+		'hero_eyebrow' => __( 'Men\'s fashion', 'begentle' ),
 		'hero_title'   => __( "Jeans that\njust fit.", 'begentle' ),
 		'hero_text'    => __( 'Fresh men\'s denim. Pick your fit, tap, done.', 'begentle' ),
 		'hero_cta'     => __( 'Shop jeans', 'begentle' ),
 		'hero_image'   => '',
-		// Highlights strip (hidden unless at least one is filled in).
-		'usp_1'        => '',
-		'usp_2'        => '',
-		'usp_3'        => '',
-		// Promo banner (hidden unless it has a title).
-		'promo_title'  => '',
-		'promo_text'   => '',
+		// Scrolling ticker, items separated by "|" (empty = hidden).
+		'marquee'      => __( 'New drops | Men\'s fashion | Find your fit | Shop the latest', 'begentle' ),
+		// Value cards. Placeholder copy: confirm it matches the real store before launch.
+		'value_1_title' => __( 'Secure checkout', 'begentle' ),
+		'value_1_text'  => __( 'Pay safely at checkout.', 'begentle' ),
+		'value_2_title' => __( 'Find your fit fast', 'begentle' ),
+		'value_2_text'  => __( 'Filter by size, colour and price in a tap.', 'begentle' ),
+		'value_3_title' => __( 'Fresh drops', 'begentle' ),
+		'value_3_text'  => __( 'See the newest styles first.', 'begentle' ),
+		// Promo banner (hidden if the title is emptied).
+		'promo_title'  => __( 'Fresh fits just landed.', 'begentle' ),
+		'promo_text'   => __( 'Explore the latest styles in the shop.', 'begentle' ),
 		'promo_cta'    => __( 'Shop now', 'begentle' ),
 		'promo_url'    => '',
 		'promo_image'  => '',
@@ -46,6 +52,8 @@ add_action(
 				__( 'Banner & hero', 'begentle' ),
 				array(
 					'announcement' => array( __( 'Announcement bar (empty = hidden)', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'marquee'      => array( __( 'Scrolling ticker (separate items with |, empty = hidden)', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'hero_eyebrow' => array( __( 'Hero small label', 'begentle' ), 'text', 'sanitize_text_field' ),
 					'hero_title'   => array( __( 'Hero title', 'begentle' ), 'textarea', 'sanitize_textarea_field' ),
 					'hero_text'    => array( __( 'Hero text', 'begentle' ), 'textarea', 'sanitize_textarea_field' ),
 					'hero_cta'     => array( __( 'Hero button label', 'begentle' ), 'text', 'sanitize_text_field' ),
@@ -53,11 +61,14 @@ add_action(
 				array( 'hero_image' => __( 'Hero image (portrait works best)', 'begentle' ) ),
 			),
 			'begentle_usp'   => array(
-				__( 'Highlights strip', 'begentle' ),
+				__( 'Value cards', 'begentle' ),
 				array(
-					'usp_1' => array( __( 'Highlight 1 (empty = hidden)', 'begentle' ), 'text', 'sanitize_text_field' ),
-					'usp_2' => array( __( 'Highlight 2', 'begentle' ), 'text', 'sanitize_text_field' ),
-					'usp_3' => array( __( 'Highlight 3', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'value_1_title' => array( __( 'Card 1 title (empty = hidden)', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'value_1_text'  => array( __( 'Card 1 text', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'value_2_title' => array( __( 'Card 2 title', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'value_2_text'  => array( __( 'Card 2 text', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'value_3_title' => array( __( 'Card 3 title', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'value_3_text'  => array( __( 'Card 3 text', 'begentle' ), 'text', 'sanitize_text_field' ),
 				),
 				array(),
 			),
