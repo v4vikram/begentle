@@ -271,6 +271,14 @@
 
 	syncCardCart();
 
+	// Product page: put the share icon on the main image, next to Woo's zoom button.
+	$('.gallery-share').each(function () {
+		var $gallery = $('.woocommerce-product-gallery').first();
+		if ($gallery.length) {
+			$(this).appendTo($gallery).removeAttr('hidden');
+		}
+	});
+
 	/* ---------- 1b. Home product tabs ---------- */
 
 	$(document).on('click', '[data-tabs] [role="tab"]', function () {

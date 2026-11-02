@@ -260,21 +260,27 @@ add_action(
 	10
 );
 
-// Share on the product page, under the add-to-cart form.
+// Share icon on the product image, beside the zoom button. Printed right after the gallery
+// (priority 20) and moved into it by assets/js/main.js; hidden until then, since sharing needs JS.
 add_action(
-	'woocommerce_single_product_summary',
+	'woocommerce_before_single_product_summary',
 	function () {
 		global $product;
 
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+
 		printf(
-			'<button type="button" class="share-btn" data-share-url="%1$s" data-share-title="%2$s">%3$s<span>%4$s</span></button>',
+			'<button type="button" class="gallery-share" data-share-url="%1$s" data-share-title="%2$s" aria-label="%3$s" hidden>%4$s</button>',
 			esc_url( $product->get_permalink() ),
 			esc_attr( $product->get_name() ),
-			begentle_icon( 'share', 'size-[18px]' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			esc_html__( 'Share', 'begentle' )
+			/* translators: %s: product name */
+			esc_attr( sprintf( __( 'Share %s', 'begentle' ), $product->get_name() ) ),
+			begentle_icon( 'share', 'size-[18px]' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		);
 	},
-	35
+	21
 );
 
 /* ---------- Shop toolbar: result count + sorting on one row ---------- */

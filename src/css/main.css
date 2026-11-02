@@ -1157,7 +1157,7 @@
 		opacity: 1;
 	}
 	.summary .product_title {
-		@apply text-3xl font-extrabold leading-tight tracking-tight;
+		@apply text-2xl font-extrabold leading-tight tracking-tight md:text-3xl;
 	}
 	.summary .price {
 		margin-top: 0.75rem;
@@ -2972,22 +2972,26 @@
 		cursor: not-allowed;
 	}
 
-	/* Product page share */
-	.share-btn {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		height: 2.75rem;
-		margin-top: 1rem;
-		padding: 0 1.1rem;
-		border: 1px solid var(--color-line);
+	/* Product page share: same round button as Woo's zoom, to its left (or in the corner without zoom). */
+	.gallery-share {
+		position: absolute;
+		right: 0.75rem;
+		top: 0.75rem;
+		z-index: 3;
+		display: grid;
+		width: 2.5rem;
+		height: 2.5rem;
+		place-items: center;
 		border-radius: 999px;
-		font-size: 0.875rem;
-		font-weight: 600;
-		transition: border-color 0.15s;
+		background: #fff;
+		color: var(--color-ink);
+		transition: transform 0.15s;
 	}
-	.share-btn:hover {
-		border-color: var(--color-ink);
+	.gallery-share:active {
+		transform: scale(0.92);
+	}
+	.woocommerce-product-gallery__trigger ~ .gallery-share {
+		right: 3.75rem;
 	}
 
 	/* Toast */
@@ -3034,4 +3038,10 @@
 			bottom: calc(5.5rem + env(safe-area-inset-bottom));
 		}
 	}
+}
+
+/* Checkout (phones): Woo repeats the order summary above "Place order". Keep only the
+   collapsible one at the top; it already shows the total. */
+.wc-block-checkout__actions .wp-block-woocommerce-checkout-order-summary-block {
+	display: none;
 }
