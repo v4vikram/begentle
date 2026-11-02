@@ -32,6 +32,22 @@ add_action(
 		if ( begentle_has_woo() ) {
 			wp_enqueue_script( 'wc-cart-fragments' );
 			wp_enqueue_script( 'wc-add-to-cart' );
+
+			// Card quick add + share (assets/js/main.js).
+			wp_localize_script(
+				'begentle',
+				'begentleCart',
+				array(
+					'addUrl' => WC_AJAX::get_endpoint( 'add_to_cart' ),
+					'qtyUrl' => WC_AJAX::get_endpoint( 'begentle_update_qty' ),
+					'i18n'   => array(
+						'added'  => __( 'Added to bag', 'begentle' ),
+						'view'   => __( 'View bag', 'begentle' ),
+						'error'  => __( 'Could not add this item. Please try again.', 'begentle' ),
+						'copied' => __( 'Link copied', 'begentle' ),
+					),
+				)
+			);
 		}
 	},
 	20

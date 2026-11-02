@@ -74,10 +74,202 @@
 		}
 	});
 
-	// Woo fires this after any AJAX add to cart.
-	$(document.body).on('added_to_cart', function () {
+	// Woo fires this after any AJAX add to cart. Adds from a product card stay on the page
+	// (icon turns filled + a toast) so browsing isn't interrupted.
+	$(document.body).on('added_to_cart', function (e, fragments, hash, $button) {
+		if ($button && $button.closest && $button.closest('.card-actions').length) {
+			return;
+		}
 		openDrawer('cart');
 	});
+
+	/* ---------- 1a. Toast, card quick add, share ---------- */
+
+	var cartParams = window.begentleCart || { i18n: {} };
+	var toastTimer = null;
+
+	function toast(message, withCartLink) {
+		var $toast = $('#begentle-toast');
+		if (!$toast.length) {
+			$toast = $('<div id="begentle-toast" class="toast" role="status" aria-live="polite"></div>').appendTo('body');
+		}
+		$toast.empty().append($('<span></span>').text(message));
+		if (withCartLink) {
+			$('<button type="button" class="toast__link" data-drawer-open="cart"></button>')
+				.text(cartParams.i18n.view || 'View bag')
+				.appendTo($toast);
+		}
+		$toast.addClass('is-visible');
+		clearTimeout(toastTimer);
+		toastTimer = setTimeout(function () {
+			$toast.removeClass('is-visible');
+		}, 3500);
+	}
+
+	// Fill the bag icon on every card whose product is in the cart (ids come from a cart fragment).
+	function syncCardCart() {
+		var ids = ($('#begentle-cart-ids').attr('data-ids') || '').split(',');
+		$('.card-cart[data-product-id]').each(function () {
+			$(this).toggleClass('is-added', ids.indexOf($(this).attr('data-product-id')) !== -1);
+		});
+	}
+
+	$(document.body).on('wc_fragments_loaded wc_fragments_refreshed added_to_cart removed_from_cart', function () {
+		setTimeout(syncCardCart, 0);
+	});
+
+	function closeQuickAdd() {
+		$('.quick-add:not([hidden])').attr('hidden', true);
+		$('[data-quick-add][aria-expanded="true"]').attr('aria-expanded', 'false');
+	}
+
+	function cardAdd(productId, $button, $cartIcon) {
+		if (!cartParams.addUrl) {
+			return false;
+		}
+		$button.addClass('is-loading');
+
+		$.post(cartParams.addUrl.toString().replace('%%endpoint%%', 'add_to_cart'), { product_id: productId, quantity: 1 })
+			.done(function (res) {
+				if (!res || res.error || !res.fragments) {
+					if (res && res.product_url) {
+						window.location.href = res.product_url;
+					} else {
+						toast(cartParams.i18n.error || 'Error');
+					}
+					return;
+				}
+				$.each(res.fragments, function (key, value) {
+					$(key).replaceWith(value);
+				});
+				$(document.body).trigger('added_to_cart', [res.fragments, res.cart_hash, $cartIcon]);
+				$cartIcon.addClass('is-added is-pop');
+				setTimeout(function () {
+					$cartIcon.removeClass('is-pop');
+				}, 400);
+				closeQuickAdd();
+				toast(cartParams.i18n.added || 'Added', true);
+			})
+			.fail(function () {
+				toast(cartParams.i18n.error || 'Error');
+			})
+			.always(function () {
+				$button.removeClass('is-loading');
+			});
+
+		return true;
+	}
+
+	// Simple product: add straight away (the href still works without JS).
+	$(document).on('click', 'a.card-cart[data-product-id]', function (e) {
+		if (/[?&]add-to-cart=/.test($(this).attr('href') || '') && cardAdd($(this).attr('data-product-id'), $(this), $(this))) {
+			e.preventDefault();
+		}
+	});
+
+	// Variable product: open the size chips, then add the picked variation.
+	$(document).on('click', '[data-quick-add]', function (e) {
+		e.stopPropagation();
+		var $panel = $('#' + $(this).attr('aria-controls'));
+		var open = $panel.is('[hidden]');
+		closeQuickAdd();
+		if (open) {
+			$panel.removeAttr('hidden');
+			$(this).attr('aria-expanded', 'true');
+			$panel.find('.quick-add__opt:not(:disabled)').first().trigger('focus');
+		}
+	});
+
+	$(document).on('click', '.quick-add__opt', function (e) {
+		e.stopPropagation();
+		var $cartIcon = $(this).closest('.card-actions').find('.card-cart');
+		cardAdd($(this).attr('data-add-id'), $(this), $cartIcon);
+	});
+
+	$(document).on('click', function (e) {
+		if (!$(e.target).closest('.quick-add').length) {
+			closeQuickAdd();
+		}
+	});
+
+	$(document).on('keydown', function (e) {
+		if (e.key === 'Escape' && $('.quick-add:not([hidden])').length) {
+			var $trigger = $('[data-quick-add][aria-expanded="true"]');
+			closeQuickAdd();
+			$trigger.trigger('focus');
+		}
+	});
+
+	// Bag drawer: − / + per item. The number changes at once; the server gets the final
+	// value after a short pause, then the whole mini cart is refreshed from its fragments.
+	var qtyTimers = {};
+
+	function sendQty($wrap, key, qty) {
+		var $content = $wrap.closest('.widget_shopping_cart_content').addClass('is-updating');
+
+		$.post(cartParams.qtyUrl, { key: key, quantity: qty, nonce: $wrap.attr('data-nonce') })
+			.done(function (res) {
+				if (!res || !res.fragments) {
+					toast((res && res.data && res.data.message) || cartParams.i18n.error || 'Error');
+					$(document.body).trigger('wc_fragment_refresh');
+					return;
+				}
+				var scroll = $('.woocommerce-mini-cart').scrollTop();
+				$.each(res.fragments, function (selector, html) {
+					$(selector).replaceWith(html);
+				});
+				$('.woocommerce-mini-cart').scrollTop(scroll);
+				$(document.body).trigger('wc_fragments_refreshed');
+			})
+			.fail(function (xhr) {
+				var res = xhr.responseJSON;
+				toast((res && res.data && res.data.message) || cartParams.i18n.error || 'Error');
+				$(document.body).trigger('wc_fragment_refresh');
+			})
+			.always(function () {
+				$content.removeClass('is-updating');
+			});
+	}
+
+	$(document).on('click', '.mini-qty__btn', function () {
+		var $wrap = $(this).closest('.mini-qty');
+		var key = $wrap.attr('data-key');
+		var max = parseInt($wrap.attr('data-max'), 10);
+		var $value = $wrap.find('.mini-qty__value');
+		var next = Math.max(1, (parseInt($value.text(), 10) || 1) + parseInt($(this).attr('data-step'), 10));
+
+		if (max > 0) {
+			next = Math.min(max, next);
+		}
+		$value.text(next);
+		$wrap.find('[data-step="-1"]').prop('disabled', next <= 1);
+		$wrap.find('[data-step="1"]').prop('disabled', max > 0 && next >= max);
+
+		clearTimeout(qtyTimers[key]);
+		qtyTimers[key] = setTimeout(function () {
+			sendQty($wrap, key, next);
+		}, 400);
+	});
+
+	// Native share sheet where available, otherwise copy the link.
+	$(document).on('click', '[data-share-url]', function () {
+		var url = $(this).attr('data-share-url');
+		var title = $(this).attr('data-share-title') || document.title;
+
+		if (navigator.share) {
+			navigator.share({ title: title, url: url }).catch(function () {});
+			return;
+		}
+		if (navigator.clipboard && window.isSecureContext) {
+			navigator.clipboard.writeText(url).then(function () {
+				toast(cartParams.i18n.copied || 'Link copied');
+			});
+			return;
+		}
+		window.prompt(title, url);
+	});
+
+	syncCardCart();
 
 	/* ---------- 1b. Home product tabs ---------- */
 
