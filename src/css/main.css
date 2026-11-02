@@ -3073,3 +3073,30 @@
 .wc-block-checkout__actions .wp-block-woocommerce-checkout-order-summary-block {
 	display: none;
 }
+
+/* ------------------------------------------- login / register switcher */
+@layer components {
+	/* width: 100% because auto margins on a grid item would otherwise shrink it to its content. */
+	#customer_login.is-tabbed {
+		grid-template-columns: minmax(0, 1fr);
+		width: 100%;
+		max-width: 28rem;
+		margin-inline: auto;
+	}
+	#customer_login.is-tabbed[data-view="login"] .u-column2,
+	#customer_login.is-tabbed[data-view="register"] .u-column1 {
+		display: none;
+	}
+	.auth-switch {
+		margin-top: 1.25rem;
+		text-align: center;
+		font-size: 0.875rem;
+		color: var(--color-muted);
+	}
+	.auth-switch a {
+		font-weight: 700;
+		color: var(--color-ink);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+}

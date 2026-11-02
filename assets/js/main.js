@@ -275,6 +275,34 @@
 
 	syncCardCart();
 
+	// My Account (logged out): show Login or Register, with links to switch between them.
+	var $auth = $('#customer_login');
+	if ($auth.length && $auth.find('.u-column2').length) {
+		var showAuth = function (view, focus) {
+			$auth.attr('data-view', view);
+			if (focus) {
+				$auth.find(view === 'register' ? '.u-column2' : '.u-column1').find('input:visible').first().trigger('focus');
+			}
+		};
+		var start = $('#auth-start').attr('data-view');
+		$auth.addClass('is-tabbed');
+		showAuth(start === 'register' || location.hash === '#register' ? 'register' : 'login', false);
+
+		$(document).on('click', '[data-auth-view]', function (e) {
+			e.preventDefault();
+			var view = $(this).attr('data-auth-view');
+			showAuth(view, true);
+			history.replaceState(null, '', view === 'register' ? '#register' : location.pathname + location.search);
+		});
+
+		// A link to #register / #login from elsewhere on this page.
+		$(window).on('hashchange', function () {
+			if (location.hash === '#register' || location.hash === '#login') {
+				showAuth(location.hash.slice(1), true);
+			}
+		});
+	}
+
 	// Product page: put the share icon on the main image, next to Woo's zoom button.
 	$('.gallery-share').each(function () {
 		var $gallery = $('.woocommerce-product-gallery').first();

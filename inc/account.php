@@ -9,6 +9,47 @@ if ( ! begentle_has_woo() ) {
 	return;
 }
 
+/*
+ * Login / Register: one form at a time with a link to switch (assets/js/main.js toggles them;
+ * without JS both stay visible, as WooCommerce renders them).
+ */
+function begentle_registration_enabled(): bool {
+	return 'yes' === get_option( 'woocommerce_enable_myaccount_registration' );
+}
+
+// A failed sign-up reloads the page: open on the Register form so the error and email are in view.
+add_action(
+	'woocommerce_before_customer_login_form',
+	function () {
+		$view = ! empty( $_POST['register'] ) ? 'register' : 'login'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- only picks which form to show.
+		echo '<div id="auth-start" data-view="' . esc_attr( $view ) . '" hidden></div>';
+	}
+);
+
+add_action(
+	'woocommerce_login_form_end',
+	function () {
+		if ( begentle_registration_enabled() ) {
+			printf(
+				'<p class="auth-switch">%1$s <a href="#register" data-auth-view="register">%2$s</a></p>',
+				esc_html__( 'New here?', 'begentle' ),
+				esc_html__( 'Create an account', 'begentle' )
+			);
+		}
+	}
+);
+
+add_action(
+	'woocommerce_register_form_end',
+	function () {
+		printf(
+			'<p class="auth-switch">%1$s <a href="#login" data-auth-view="login">%2$s</a></p>',
+			esc_html__( 'Already have an account?', 'begentle' ),
+			esc_html__( 'Log in', 'begentle' )
+		);
+	}
+);
+
 // Clothes shop: no downloadable files.
 add_filter(
 	'woocommerce_account_menu_items',

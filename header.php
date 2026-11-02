@@ -60,7 +60,7 @@ $announcement = trim( (string) begentle_mod( 'announcement' ) );
 				<?php echo begentle_icon( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</button>
 			<?php if ( $has_woo ) : ?>
-				<a class="icon-btn hidden sm:inline-grid" href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" aria-label="<?php esc_attr_e( 'My account', 'begentle' ); ?>">
+				<a class="icon-btn" href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" aria-label="<?php esc_attr_e( 'My account', 'begentle' ); ?>">
 					<?php echo begentle_icon( 'user' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</a>
 				<a class="icon-btn" href="<?php echo esc_url( wc_get_cart_url() ); ?>" data-drawer-open="cart" aria-controls="drawer-cart" aria-label="<?php esc_attr_e( 'Cart', 'begentle' ); ?>">
