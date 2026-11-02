@@ -88,22 +88,18 @@
 	var cartParams = window.begentleCart || { i18n: {} };
 	var toastTimer = null;
 
-	function toast(message, withCartLink) {
+	// Short confirmation pill. Success messages flash for 1s; pass a longer duration for errors.
+	function toast(message, duration) {
 		var $toast = $('#begentle-toast');
 		if (!$toast.length) {
 			$toast = $('<div id="begentle-toast" class="toast" role="status" aria-live="polite"></div>').appendTo('body');
 		}
 		$toast.empty().append($('<span></span>').text(message));
-		if (withCartLink) {
-			$('<button type="button" class="toast__link" data-drawer-open="cart"></button>')
-				.text(cartParams.i18n.view || 'View bag')
-				.appendTo($toast);
-		}
 		$toast.addClass('is-visible');
 		clearTimeout(toastTimer);
 		toastTimer = setTimeout(function () {
 			$toast.removeClass('is-visible');
-		}, 3500);
+		}, duration || 1000);
 	}
 
 	// Fill the bag icon on every card whose product is in the cart (ids come from a cart fragment).
@@ -135,7 +131,7 @@
 					if (res && res.product_url) {
 						window.location.href = res.product_url;
 					} else {
-						toast(cartParams.i18n.error || 'Error');
+						toast(cartParams.i18n.error || 'Error', 2500);
 					}
 					return;
 				}
@@ -148,10 +144,10 @@
 					$cartIcon.removeClass('is-pop');
 				}, 400);
 				closeQuickAdd();
-				toast(cartParams.i18n.added || 'Added', true);
+				toast(cartParams.i18n.added || 'Added');
 			})
 			.fail(function () {
-				toast(cartParams.i18n.error || 'Error');
+				toast(cartParams.i18n.error || 'Error', 2500);
 			})
 			.always(function () {
 				$button.removeClass('is-loading');
@@ -178,6 +174,14 @@
 			$(this).attr('aria-expanded', 'true');
 			$panel.find('.quick-add__opt:not(:disabled)').first().trigger('focus');
 		}
+	});
+
+	// × in the size picker: close it and return focus to the cart button.
+	$(document).on('click', '.quick-add__close', function (e) {
+		e.stopPropagation();
+		var $trigger = $('[data-quick-add][aria-expanded="true"]');
+		closeQuickAdd();
+		$trigger.trigger('focus');
 	});
 
 	$(document).on('click', '.quick-add__opt', function (e) {
@@ -210,7 +214,7 @@
 		$.post(cartParams.qtyUrl, { key: key, quantity: qty, nonce: $wrap.attr('data-nonce') })
 			.done(function (res) {
 				if (!res || !res.fragments) {
-					toast((res && res.data && res.data.message) || cartParams.i18n.error || 'Error');
+					toast((res && res.data && res.data.message) || cartParams.i18n.error || 'Error', 2500);
 					$(document.body).trigger('wc_fragment_refresh');
 					return;
 				}
@@ -223,7 +227,7 @@
 			})
 			.fail(function (xhr) {
 				var res = xhr.responseJSON;
-				toast((res && res.data && res.data.message) || cartParams.i18n.error || 'Error');
+				toast((res && res.data && res.data.message) || cartParams.i18n.error || 'Error', 2500);
 				$(document.body).trigger('wc_fragment_refresh');
 			})
 			.always(function () {

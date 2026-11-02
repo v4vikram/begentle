@@ -42,7 +42,6 @@ add_action(
 					'qtyUrl' => WC_AJAX::get_endpoint( 'begentle_update_qty' ),
 					'i18n'   => array(
 						'added'  => __( 'Added to bag', 'begentle' ),
-						'view'   => __( 'View bag', 'begentle' ),
 						'error'  => __( 'Could not add this item. Please try again.', 'begentle' ),
 						'copied' => __( 'Link copied', 'begentle' ),
 					),

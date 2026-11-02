@@ -12,12 +12,17 @@ if ( ! begentle_has_woo() ) {
 	return;
 }
 
-// India: ask for the PIN right after the address so City / State below it can be filled in.
+// India: ask for the PIN before the address (as Amazon / Flipkart do), so City and State further
+// down are already filled by the time the customer gets there. The label says it will happen.
 // Block checkout reads the same priority (it becomes the field "index").
 add_filter(
 	'woocommerce_get_country_locale',
 	function ( $locale ) {
-		$locale['IN']['postcode']['priority'] = 65; // address_2 is 60, city 70, state 80.
+		// Address line 1 defaults to 40 in the block checkout but 50 in classic forms, so pin both:
+		// names 10-20, PIN 45, address 46, address_2 50/60, city 70, state 80.
+		$locale['IN']['postcode']['priority']  = 45;
+		$locale['IN']['address_1']['priority'] = 46;
+		$locale['IN']['postcode']['label']     = __( 'PIN Code (auto-fills city & state)', 'begentle' );
 		return $locale;
 	}
 );

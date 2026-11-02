@@ -21,7 +21,8 @@ function begentle_icon( string $name, string $class = 'size-6' ): string {
 		'pin'    => '<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/>',
 		'logout' => '<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>',
 		'check'  => '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
-		'share'  => '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+		'cart'   => '<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.3 10.6a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L19.6 8H6.1"/><path d="M12.6 8.8v4.4M10.4 11h4.4"/>',
+		'share'  =>'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
 		'minus'  => '<path d="M6 12h12"/>',
 		'plus'   => '<path d="M12 6v12M6 12h12"/>',
 	);

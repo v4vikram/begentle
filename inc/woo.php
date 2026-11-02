@@ -192,7 +192,7 @@ add_action(
 
 		$name    = $product->get_name();
 		$in_cart = in_array( $product->get_id(), begentle_cart_product_ids(), true ) ? ' is-added' : '';
-		$bag     = begentle_icon( 'bag', 'size-5' );
+		$bag     = begentle_icon( 'cart', 'size-4' );
 
 		echo '<div class="card-actions">';
 
@@ -232,7 +232,12 @@ add_action(
 				);
 
 				echo '<div class="quick-add" id="' . esc_attr( $panel_id ) . '" hidden>';
-				echo '<p class="quick-add__title">' . esc_html( $quick['label'] ) . '</p><div class="quick-add__opts">';
+				printf(
+					'<div class="quick-add__head"><p class="quick-add__title">%1$s</p><button type="button" class="quick-add__close" aria-label="%2$s">%3$s</button></div><div class="quick-add__opts">',
+					esc_html( $quick['label'] ),
+					esc_attr__( 'Close', 'begentle' ),
+					begentle_icon( 'close', 'size-3.5' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
 				foreach ( $quick['options'] as $option ) {
 					printf(
 						'<button type="button" class="quick-add__opt" data-add-id="%1$d" %2$s>%3$s</button>',
