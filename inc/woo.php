@@ -31,6 +31,39 @@ add_filter(
 	}
 );
 
+// One "Full name" box instead of First + Last name. Done through the country locale so it applies
+// to the block checkout, classic checkout and My Account address forms alike (all countries).
+function begentle_single_name_field( array $fields ): array {
+	$fields['first_name']['label'] = __( 'Full name', 'begentle' );
+	$fields['last_name']['required'] = false;
+	$fields['last_name']['hidden']   = true;
+	return $fields;
+}
+add_filter( 'woocommerce_get_country_locale_default', 'begentle_single_name_field' );
+
+// Classic forms (My Account addresses) render fields server-side and only apply "hidden" on a
+// country change, so drop Last name there outright and let Full name use the whole row.
+add_filter(
+	'woocommerce_default_address_fields',
+	function ( $fields ) {
+		unset( $fields['last_name'] );
+		if ( isset( $fields['first_name'] ) ) {
+			$fields['first_name']['label'] = __( 'Full name', 'begentle' );
+			$fields['first_name']['class'] = array( 'form-row-wide' );
+		}
+		return $fields;
+	}
+);
+add_filter(
+	'woocommerce_get_country_locale',
+	function ( $locale ) {
+		foreach ( $locale as $country => $fields ) {
+			$locale[ $country ] = begentle_single_name_field( (array) $fields );
+		}
+		return $locale;
+	}
+);
+
 /* ---------- Product card (shop loop) ---------- */
 
 // Tap-to-open card: no rating, no add-to-cart button (jeans need a size first).
