@@ -80,7 +80,22 @@ $on_sale   = ! empty( $_GET['on_sale'] );
 
 		<div class="filter-footer">
 			<a class="btn btn-outline" href="<?php echo esc_url( begentle_clear_filters_url() ); ?>"><?php esc_html_e( 'Clear all', 'begentle' ); ?></a>
-			<button type="submit" class="btn flex-1"><?php esc_html_e( 'Show results', 'begentle' ); ?></button>
+			<?php $found = (int) $GLOBALS['wp_query']->found_posts; ?>
+			<button type="submit" class="btn flex-1" data-results-btn
+				data-tpl="<?php echo esc_attr__( 'Show %d results', 'begentle' ); ?>"
+				data-one="<?php echo esc_attr__( 'Show 1 result', 'begentle' ); ?>"
+				data-zero="<?php echo esc_attr__( 'No results', 'begentle' ); ?>">
+				<?php
+				if ( 0 === $found ) {
+					esc_html_e( 'No results', 'begentle' );
+				} elseif ( 1 === $found ) {
+					esc_html_e( 'Show 1 result', 'begentle' );
+				} else {
+					/* translators: %d: number of products */
+					echo esc_html( sprintf( __( 'Show %d results', 'begentle' ), $found ) );
+				}
+				?>
+			</button>
 		</div>
 	</form>
 </aside>

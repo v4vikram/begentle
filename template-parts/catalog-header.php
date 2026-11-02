@@ -17,16 +17,23 @@ if ( is_product_category() && $term instanceof WP_Term ) {
 
 $pills = is_search() ? array() : begentle_top_categories( 12 );
 
-// Full banner only on the first, unfiltered shop page: otherwise it just pushes products down.
-$show_banner  = is_shop() && ! is_search() && ! is_paged() && ! begentle_active_filters();
-$banner_image = $show_banner ? (int) begentle_mod( 'shop_image' ) : 0;
-$banner_shots = $show_banner && ! $banner_image ? begentle_latest_with_images( 3 ) : array();
+// The photo banner shows on the shop and on search / filtered / paged results too (shorter there).
+$show_banner  = true; // Same banner size everywhere: shop, categories, search, filters.
+$compact      = is_search() || is_paged() || is_product_taxonomy() || (bool) begentle_active_filters();
+$banner_image = $show_banner ? (int) begentle_mod( 'shop_banner' ) : 0;
+$banner_shots = array();
+$banner_title = is_search() ? sprintf( /* translators: %s: search term */ __( 'Results for “%s”', 'begentle' ), get_search_query() ) : ( $term instanceof WP_Term ? $term->name : begentle_mod( 'shop_title' ) );
 $total        = (int) $GLOBALS['wp_query']->found_posts;
 ?>
 <?php if ( $show_banner ) : ?>
-	<header class="shop-banner <?php echo $banner_image ? 'has-image' : ''; ?>">
+	<header class="shop-banner has-image <?php echo $compact ? 'is-compact' : ''; ?>">
 		<?php
-		if ( $banner_image ) {
+		if ( ! $banner_image ) {
+			printf(
+				'<img class="shop-banner__img" src="%s" width="2000" height="494" alt="" fetchpriority="high" decoding="async">',
+				esc_url( get_theme_file_uri( 'assets/img/shop-banner.jpg' ) )
+			);
+		} else {
 			echo wp_get_attachment_image(
 				$banner_image,
 				'full',
@@ -42,16 +49,20 @@ $total        = (int) $GLOBALS['wp_query']->found_posts;
 		}
 		?>
 		<div class="shop-banner__body">
-			<?php if ( $total ) : ?>
+			<?php if ( $total && ! $compact ) : ?>
 				<p class="text-xs font-bold uppercase tracking-wider opacity-70">
 					<?php
 					/* translators: %s: number of products */
-					echo esc_html( sprintf( _n( '%s style', '%s styles', $total, 'begentle' ), number_format_i18n( $total ) ) );
+					echo esc_html( sprintf( _n( '%s product', '%s products', $total, 'begentle' ), number_format_i18n( $total ) ) );
 					?>
 				</p>
 			<?php endif; ?>
-			<h1 class="mt-2 text-4xl font-extrabold leading-none tracking-tight md:text-6xl"><?php echo esc_html( begentle_mod( 'shop_title' ) ); ?></h1>
-			<?php if ( begentle_mod( 'shop_text' ) ) : ?>
+			<h1 class="mt-2 font-extrabold leading-none tracking-tight <?php echo $compact ? 'text-3xl md:text-4xl' : 'text-4xl md:text-6xl'; ?>"><?php echo esc_html( $banner_title ); ?></h1>
+			<?php if ( $compact ) : ?>
+				<p class="mt-2 text-sm opacity-80">
+					<?php /* translators: %s: number of products */ echo esc_html( sprintf( _n( '%s product', '%s products', $total, 'begentle' ), number_format_i18n( $total ) ) ); ?>
+				</p>
+			<?php elseif ( begentle_mod( 'shop_text' ) ) : ?>
 				<p class="mt-3 max-w-md text-sm opacity-80 md:text-base"><?php echo esc_html( begentle_mod( 'shop_text' ) ); ?></p>
 			<?php endif; ?>
 		</div>

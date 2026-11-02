@@ -31,7 +31,7 @@ if ( ! $reviews ) {
 ?>
 <section class="mx-auto max-w-7xl px-4 pt-10 md:pt-16" aria-labelledby="home-reviews">
 	<?php begentle_section_head( 'home-reviews', __( 'What customers say', 'begentle' ) ); ?>
-	<div class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0">
+	<div class="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0">
 		<?php foreach ( $reviews as $review ) : ?>
 			<figure class="w-72 shrink-0 snap-start rounded-2xl border border-line p-5 md:w-auto">
 				<?php echo wc_get_rating_html( (float) get_comment_meta( $review->comment_ID, 'rating', true ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

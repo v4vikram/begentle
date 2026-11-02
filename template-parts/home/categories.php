@@ -12,7 +12,7 @@ if ( ! $categories ) {
 ?>
 <section class="mx-auto max-w-7xl px-4 pt-10 md:pt-16" aria-labelledby="home-cats">
 	<?php begentle_section_head( 'home-cats', __( 'Shop by category', 'begentle' ), wc_get_page_permalink( 'shop' ), __( 'Shop all', 'begentle' ) ); ?>
-	<div class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0">
+	<div class="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0">
 		<?php
 		foreach ( $categories as $term ) :
 			$thumb_id = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );

@@ -40,15 +40,17 @@ $sizes   = $spotlight->get_attribute( 'pa_size' );
 	<div class="grid items-center overflow-hidden rounded-3xl bg-mist md:grid-cols-2">
 		<a href="<?php echo esc_url( $spotlight->get_permalink() ); ?>" class="group block aspect-square overflow-hidden md:aspect-[4/5]" tabindex="-1" aria-hidden="true">
 			<?php
-			echo wp_get_attachment_image(
-				$spotlight->get_image_id(),
-				'large',
-				false,
-				array(
-					'class' => 'size-full object-cover transition-transform duration-500 group-hover:scale-105',
-					'alt'   => '',
-				)
-			);
+			$img_class = 'size-full object-cover transition-transform duration-500 group-hover:scale-105';
+			$custom_id = (int) begentle_mod( 'spotlight_image' );
+			$bundled   = get_theme_file_path( 'assets/img/spotlight.jpg' );
+
+			if ( $custom_id ) {
+				echo wp_get_attachment_image( $custom_id, 'large', false, array( 'class' => $img_class, 'alt' => '' ) );
+			} elseif ( file_exists( $bundled ) ) {
+				echo '<img class="' . esc_attr( $img_class ) . '" src="' . esc_url( get_theme_file_uri( 'assets/img/spotlight.jpg' ) ) . '?v=' . esc_attr( (string) filemtime( $bundled ) ) . '" width="1200" height="1500" alt="" loading="lazy" decoding="async">';
+			} else {
+				echo wp_get_attachment_image( $spotlight->get_image_id(), 'large', false, array( 'class' => $img_class, 'alt' => '' ) );
+			}
 			?>
 		</a>
 		<div class="p-6 md:p-12">

@@ -91,6 +91,55 @@
 		$('#' + $tab.attr('aria-controls')).prop('hidden', false);
 	});
 
+	/* ---------- 1c. Quantity − / + ---------- */
+
+	function qtyLimits($input) {
+		var min = parseFloat($input.attr('min'));
+		var max = parseFloat($input.attr('max'));
+		return {
+			min: isNaN(min) ? 1 : min,
+			max: isNaN(max) || max <= 0 ? Infinity : max,
+			step: parseFloat($input.attr('step')) || 1,
+		};
+	}
+
+	function syncQty($input) {
+		var limits = qtyLimits($input);
+		var value = parseFloat($input.val()) || 0;
+		var $box = $input.closest('.quantity');
+		$box.find('[data-qty="minus"]').prop('disabled', value <= limits.min);
+		$box.find('[data-qty="plus"]').prop('disabled', value >= limits.max);
+	}
+
+	$(document).on('click', '.qty-btn', function () {
+		var $input = $(this).closest('.quantity').find('input.qty');
+		if (!$input.length || $input.prop('readonly')) {
+			return;
+		}
+		var limits = qtyLimits($input);
+		var value = parseFloat($input.val()) || 0;
+		value += $(this).attr('data-qty') === 'plus' ? limits.step : -limits.step;
+		value = Math.min(limits.max, Math.max(limits.min, value));
+		// Round away float noise from decimal steps (0.1 + 0.2).
+		$input.val(parseFloat(value.toFixed(6))).trigger('change');
+	});
+
+	$(document).on('change input', '.quantity input.qty', function () {
+		syncQty($(this));
+	});
+
+	// Variations change min/max (stock) after a size is picked.
+	$(document).on('found_variation reset_data', 'form.variations_form', function () {
+		var $input = $(this).find('input.qty');
+		setTimeout(function () {
+			syncQty($input);
+		}, 0);
+	});
+
+	$('.quantity input.qty').each(function () {
+		syncQty($(this));
+	});
+
 	/* ---------- 2. Size swatches ---------- */
 
 	function initSwatches($form) {

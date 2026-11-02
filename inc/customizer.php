@@ -21,14 +21,23 @@ function begentle_defaults(): array {
 		// Shop page banner.
 		'shop_title'   => __( 'Shop all', 'begentle' ),
 		'shop_text'    => __( 'Every fit in one place. Filter by size, colour and price.', 'begentle' ),
-		'shop_image'   => '',
+		'shop_banner'   => '',
 		// Promo banner (hidden if the title is emptied).
 		'promo_title'  => __( 'Fresh fits just landed.', 'begentle' ),
 		'promo_text'   => __( 'Explore the latest styles in the shop.', 'begentle' ),
 		'promo_cta'    => __( 'Shop now', 'begentle' ),
 		'promo_url'    => '',
 		'promo_image'  => '',
+		// Contact details (About, Contact, footer).
+		'contact_email'     => 'hello@begentle.shop',
+		'contact_whatsapp'  => '',
+		'contact_instagram' => '',
+		'contact_hours'     => __( 'Mon to Sat, 10 am to 6 pm IST', 'begentle' ),
 	);
+}
+
+function begentle_sanitize_digits( $value ): string {
+	return preg_replace( '/\D+/', '', (string) $value );
 }
 
 function begentle_mod( string $key ) {
@@ -82,7 +91,7 @@ add_action(
 					'shop_title' => array( __( 'Title', 'begentle' ), 'text', 'sanitize_text_field' ),
 					'shop_text'  => array( __( 'Text', 'begentle' ), 'textarea', 'sanitize_textarea_field' ),
 				),
-				array( 'shop_image' => __( 'Banner image (wide, at least 1600px; empty = product photos)', 'begentle' ) ),
+				array( 'shop_banner' => __( 'Banner image (wide, at least 1600px; empty = theme banner)', 'begentle' ) ),
 			),
 			'begentle_promo' => array(
 				__( 'Promo banner', 'begentle' ),
@@ -93,6 +102,21 @@ add_action(
 					'promo_url'   => array( __( 'Button link', 'begentle' ), 'url', 'esc_url_raw' ),
 				),
 				array( 'promo_image' => __( 'Background image', 'begentle' ) ),
+			),
+			'begentle_spotlight' => array(
+				__( 'Spotlight image', 'begentle' ),
+				array(),
+				array( 'spotlight_image' => __( 'Image for the home spotlight (empty = theme image, then product photo)', 'begentle' ) ),
+			),
+			'begentle_contact' => array(
+				__( 'Contact details', 'begentle' ),
+				array(
+					'contact_email'     => array( __( 'Email (contact form goes here)', 'begentle' ), 'email', 'sanitize_email' ),
+					'contact_whatsapp'  => array( __( 'WhatsApp number with country code, digits only (empty = hidden)', 'begentle' ), 'text', 'begentle_sanitize_digits' ),
+					'contact_instagram' => array( __( 'Instagram handle without @ (empty = hidden)', 'begentle' ), 'text', 'sanitize_text_field' ),
+					'contact_hours'     => array( __( 'Support hours', 'begentle' ), 'text', 'sanitize_text_field' ),
+				),
+				array(),
 			),
 		);
 

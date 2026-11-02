@@ -2,11 +2,13 @@
 defined( 'ABSPATH' ) || exit;
 
 $footer_cats = array_slice( begentle_top_categories( 6 ), 0, 6 );
+$blog_url    = begentle_blog_url();
+$blog_topics = $blog_url ? array_slice( begentle_blog_categories(), 0, 4 ) : array();
 ?>
 </main>
 
 <footer class="mt-16 border-t border-line">
-	<div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-4">
+	<div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-5">
 		<div class="sm:col-span-2">
 			<p class="text-lg font-extrabold tracking-tight"><?php bloginfo( 'name' ); ?></p>
 			<?php if ( get_bloginfo( 'description' ) ) : ?>
@@ -39,6 +41,18 @@ $footer_cats = array_slice( begentle_top_categories( 6 ), 0, 6 );
 			);
 			?>
 		</nav>
+
+		<?php if ( $blog_url ) : ?>
+			<nav aria-label="<?php esc_attr_e( 'Blog', 'begentle' ); ?>">
+				<p class="footer-title"><?php echo esc_html( get_the_title( (int) get_option( 'page_for_posts' ) ) ); ?></p>
+				<ul class="footer-nav">
+					<li><a href="<?php echo esc_url( $blog_url ); ?>"><?php esc_html_e( 'All articles', 'begentle' ); ?></a></li>
+					<?php foreach ( $blog_topics as $blog_topic ) : ?>
+						<li><a href="<?php echo esc_url( get_term_link( $blog_topic ) ); ?>"><?php echo esc_html( $blog_topic->name ); ?></a></li>
+					<?php endforeach; ?>
+				</ul>
+			</nav>
+		<?php endif; ?>
 	</div>
 	<div class="border-t border-line">
 		<p class="mx-auto max-w-7xl px-4 py-4 text-xs text-muted">

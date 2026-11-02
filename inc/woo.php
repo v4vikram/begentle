@@ -111,6 +111,22 @@ add_action( 'woocommerce_before_shop_loop', fn() => print( '</div>' ), 35 );
 
 remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_meta', 40 );
 
+// − / + buttons around the quantity box (behaviour in assets/js/main.js). Product page only.
+function begentle_qty_button( string $direction ): void {
+	if ( ! is_product() ) {
+		return;
+	}
+
+	printf(
+		'<button type="button" class="qty-btn" data-qty="%1$s" aria-label="%2$s">%3$s</button>',
+		esc_attr( $direction ),
+		'plus' === $direction ? esc_attr__( 'Increase quantity', 'begentle' ) : esc_attr__( 'Decrease quantity', 'begentle' ),
+		begentle_icon( $direction, 'size-4' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	);
+}
+add_action( 'woocommerce_before_quantity_input_field', fn() => begentle_qty_button( 'minus' ) );
+add_action( 'woocommerce_after_quantity_input_field', fn() => begentle_qty_button( 'plus' ) );
+
 // Mobile sticky "Add to cart" bar (markup in template-parts/sticky-atc.php).
 add_action(
 	'woocommerce_after_single_product',

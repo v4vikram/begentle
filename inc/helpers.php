@@ -21,6 +21,8 @@ function begentle_icon( string $name, string $class = 'size-6' ): string {
 		'pin'    => '<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/>',
 		'logout' => '<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>',
 		'check'  => '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+		'minus'  => '<path d="M6 12h12"/>',
+		'plus'   => '<path d="M12 6v12M6 12h12"/>',
 	);
 
 	if ( ! isset( $paths[ $name ] ) ) {

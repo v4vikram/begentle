@@ -19,6 +19,8 @@ Custom WooCommerce theme, men's fashion (jeans first, more categories later), Ge
 - Grids that contain a horizontally scrolling child need `grid-template-columns: minmax(0, 1fr)`, otherwise the child stretches the page on phones. When testing with mobile emulation, compare `scrollWidth` with the viewport width: `window.innerWidth` grows with the page and hides this bug.
 - Local testing: the store is in WooCommerce "Coming soon" mode, so anonymous HTTP requests never reach the theme. Render pages through a CLI harness that adds `woocommerce_coming_soon_exclude` (do not change the store option).
 
+- Blog (`inc/blog.php`, `home.php`, `archive.php`, `single.php`, `template-parts/blog/`): the posts page is the "Blog" page (`/blog/`, Settings > Reading). Listing filters are `?q=` and `?sort=` (noindexed); categories are real archive URLs. `assets/js/blog.js` swaps `#blog-head` + `#blog-results` over AJAX using the same `?bg_partial=1` contract as the shop (`begentle_blog_partial()`), and every link/form still works without JS. TOC is built from h2/h3; a "FAQ" h2 followed by h3 questions becomes FAQPage schema. The manual excerpt shows as the "In short" box. Meta/OG/JSON-LD switch off when an SEO plugin is active.
+
 ## Not decided / not verified yet
 
 - Visual QA on real phones is done manually by the owner.

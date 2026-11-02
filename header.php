@@ -26,7 +26,17 @@ $announcement = trim( (string) begentle_mod( 'announcement' ) );
 <header id="site-header" class="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
 	<div class="mx-auto grid h-14 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 md:h-16 md:px-4">
 
-		<div class="flex items-center">
+		<div class="site-logo flex items-center justify-self-start">
+			<?php if ( has_custom_logo() ) : ?>
+				<?php the_custom_logo(); ?>
+			<?php else : ?>
+				<a class="site-logo__link" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
+					<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.svg' ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" width="140" height="31">
+				</a>
+			<?php endif; ?>
+		</div>
+
+		<div class="flex items-center justify-center">
 			<button type="button" class="icon-btn md:hidden" data-drawer-open="menu" aria-controls="drawer-menu" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open menu', 'begentle' ); ?>">
 				<?php echo begentle_icon( 'menu' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</button>
@@ -43,14 +53,6 @@ $announcement = trim( (string) begentle_mod( 'announcement' ) );
 				);
 				?>
 			</nav>
-		</div>
-
-		<div class="site-logo">
-			<?php if ( has_custom_logo() ) : ?>
-				<?php the_custom_logo(); ?>
-			<?php else : ?>
-				<a class="text-xl font-extrabold tracking-tight" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a>
-			<?php endif; ?>
 		</div>
 
 		<div class="flex items-center justify-end">

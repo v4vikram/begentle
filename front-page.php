@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 
 get_header();
 
-foreach ( array( 'hero', 'marquee', 'categories', 'products', 'values', 'spotlight', 'shop-by', 'promo', 'reviews' ) as $begentle_section ) {
+foreach ( array( 'hero', 'marquee', 'categories', 'products', 'values', 'spotlight', 'shop-by', 'promo', 'reviews', 'blog' ) as $begentle_section ) {
 	get_template_part( 'template-parts/home/' . $begentle_section );
 }
 
