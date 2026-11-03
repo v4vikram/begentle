@@ -3301,3 +3301,29 @@
 		content: "✓ ";
 	}
 }
+
+/* Checkout: drop "You are currently checking out as a guest." (adds nothing; the Log in link stays). */
+.wc-block-checkout__guest-checkout-notice {
+	display: none;
+}
+
+/* Cart / checkout fields: a slightly stronger border so each box is easy to see, and grey labels so
+   an empty field's label doesn't read like typed text. What the customer types stays dark. */
+:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout) :is(.wc-block-components-text-input input, .wc-blocks-components-select__select, .wc-block-components-textarea) {
+	border-color: #cdc9c3 !important;
+}
+:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout) :is(.wc-block-components-text-input input, .wc-blocks-components-select__select, .wc-block-components-textarea):focus {
+	border-color: var(--color-ink) !important;
+}
+:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout) :is(.wc-block-components-text-input label, .wc-blocks-components-select__label) {
+	color: var(--color-muted);
+}
+:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout) .wc-block-components-text-input:not(.is-active) label {
+	color: #8b8884;
+}
+
+/* Checkout: no "Add a note to your order" (one less thing to think about). Same as turning the
+   Order note block off in the editor, but it ships with the theme. */
+.wp-block-woocommerce-checkout-order-note-block {
+	display: none;
+}

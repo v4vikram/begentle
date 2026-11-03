@@ -22,6 +22,9 @@ add_filter(
 	}
 );
 
+// No order notes on the classic checkout either (the block checkout hides its Order note block in CSS).
+add_filter( 'woocommerce_enable_order_notes_field', '__return_false' );
+
 // Fewer checkout fields = fewer drop-offs on mobile.
 add_filter(
 	'woocommerce_checkout_fields',
