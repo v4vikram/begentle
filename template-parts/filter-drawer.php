@@ -42,6 +42,20 @@ $on_sale   = ! empty( $_GET['on_sale'] );
 					printf( esc_html__( 'Price (%s)', 'begentle' ), esc_html( html_entity_decode( $symbol ) ) );
 					?>
 				</legend>
+				<?php
+				// One-tap ranges: they fill the Min / Max boxes below (assets/js/main.js), and the live filter picks that up.
+				$presets = begentle_price_buckets();
+				if ( $presets ) :
+					?>
+					<div class="chips mb-3">
+						<?php foreach ( $presets as $preset ) : ?>
+							<?php $active = (string) $min_price === $preset['min'] && (string) $max_price === $preset['max']; ?>
+							<button type="button" class="price-preset" data-min="<?php echo esc_attr( $preset['min'] ); ?>" data-max="<?php echo esc_attr( $preset['max'] ); ?>" aria-pressed="<?php echo $active ? 'true' : 'false'; ?>">
+								<?php echo esc_html( $preset['label'] ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
 				<div class="grid grid-cols-2 gap-3">
 					<input type="number" inputmode="numeric" min="0" name="min_price" value="<?php echo esc_attr( $min_price ); ?>" placeholder="<?php echo esc_attr( $bounds['min'] ? sprintf( /* translators: %s: amount */ __( 'Min %s', 'begentle' ), $bounds['min'] ) : __( 'Min', 'begentle' ) ); ?>" aria-label="<?php esc_attr_e( 'Minimum price', 'begentle' ); ?>">
 					<input type="number" inputmode="numeric" min="0" name="max_price" value="<?php echo esc_attr( $max_price ); ?>" placeholder="<?php echo esc_attr( $bounds['max'] ? sprintf( /* translators: %s: amount */ __( 'Max %s', 'begentle' ), $bounds['max'] ) : __( 'Max', 'begentle' ) ); ?>" aria-label="<?php esc_attr_e( 'Maximum price', 'begentle' ); ?>">

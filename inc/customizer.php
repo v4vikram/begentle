@@ -4,27 +4,27 @@ defined( 'ABSPATH' ) || exit;
 function begentle_defaults(): array {
 	return array(
 		'announcement' => '',
-		'hero_eyebrow' => __( 'Men\'s fashion', 'begentle' ),
-		'hero_title'   => __( "Jeans that\njust fit.", 'begentle' ),
-		'hero_text'    => __( 'Fresh men\'s denim. Pick your fit, tap, done.', 'begentle' ),
-		'hero_cta'     => __( 'Shop jeans', 'begentle' ),
+		'hero_eyebrow' => __( 'New drop', 'begentle' ),
+		'hero_title'   => __( "Smell like\nyour vibe.", 'begentle' ),
+		'hero_text'    => __( 'Perfumes for every mood. Pick your scent, tap, done.', 'begentle' ),
+		'hero_cta'     => __( 'Shop perfumes', 'begentle' ),
 		'hero_image'   => '',
 		// Scrolling ticker, items separated by "|" (empty = hidden).
-		'marquee'      => __( 'New drops | Men\'s fashion | Find your fit | Shop the latest', 'begentle' ),
+		'marquee'      => __( 'New drop | Eau de parfum | Find your scent | Shop the latest', 'begentle' ),
 		// Value cards. Placeholder copy: confirm it matches the real store before launch.
 		'value_1_title' => __( 'Secure checkout', 'begentle' ),
 		'value_1_text'  => __( 'Pay safely at checkout.', 'begentle' ),
-		'value_2_title' => __( 'Find your fit fast', 'begentle' ),
-		'value_2_text'  => __( 'Filter by size, colour and price in a tap.', 'begentle' ),
+		'value_2_title' => __( 'Find your scent fast', 'begentle' ),
+		'value_2_text'  => __( 'Filter by size and price in a tap.', 'begentle' ),
 		'value_3_title' => __( 'Fresh drops', 'begentle' ),
-		'value_3_text'  => __( 'See the newest styles first.', 'begentle' ),
+		'value_3_text'  => __( 'See the newest scents first.', 'begentle' ),
 		// Shop page banner.
 		'shop_title'   => __( 'Shop all', 'begentle' ),
-		'shop_text'    => __( 'Every fit in one place. Filter by size, colour and price.', 'begentle' ),
+		'shop_text'    => __( 'Every scent in one place. Filter by size and price.', 'begentle' ),
 		'shop_banner'   => '',
 		// Promo banner (hidden if the title is emptied).
-		'promo_title'  => __( 'Fresh fits just landed.', 'begentle' ),
-		'promo_text'   => __( 'Explore the latest styles in the shop.', 'begentle' ),
+		'promo_title'  => __( 'New scents just landed.', 'begentle' ),
+		'promo_text'   => __( 'Explore the latest drop in the shop.', 'begentle' ),
 		'promo_cta'    => __( 'Shop now', 'begentle' ),
 		'promo_url'    => '',
 		'promo_image'  => '',

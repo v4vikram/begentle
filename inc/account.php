@@ -50,32 +50,47 @@ add_action(
 	}
 );
 
-// Clothes shop: no downloadable files.
+// Physical products only: no Downloads tab. Short labels so the menu fits a phone.
 add_filter(
 	'woocommerce_account_menu_items',
 	function ( $items ) {
 		unset( $items['downloads'] );
+		if ( isset( $items['edit-account'] ) ) {
+			$items['edit-account'] = __( 'Details', 'begentle' );
+		}
 		return $items;
 	}
 );
 
 /**
- * Dashboard: quick links + last 3 orders, below Woo's greeting.
+ * Dashboard: short greeting, quick links, last 3 orders.
+ * Woo's own two intro paragraphs are hidden by CSS (they sit right before .account-dashboard).
  */
 add_action(
 	'woocommerce_account_dashboard',
 	function () {
+		$user = wp_get_current_user();
+		$name = $user->first_name ? $user->first_name : $user->display_name;
+		$name = trim( strtok( (string) $name, ' ' ) ); // First word of a full name.
+
+		echo '<div class="account-dashboard">';
+		printf(
+			'<div class="account-hello"><h2>%1$s</h2><p>%2$s</p></div>',
+			/* translators: %s: customer's first name */
+			esc_html( $name ? sprintf( __( 'Hi %s 👋', 'begentle' ), $name ) : __( 'Hi there 👋', 'begentle' ) ),
+			esc_html__( 'Track your orders, save addresses and update your details.', 'begentle' )
+		);
+
 		$tiles = array(
 			array( 'orders', __( 'Orders', 'begentle' ), __( 'Track and review', 'begentle' ), wc_get_account_endpoint_url( 'orders' ) ),
 			array( 'pin', __( 'Addresses', 'begentle' ), __( 'Shipping & billing', 'begentle' ), wc_get_account_endpoint_url( 'edit-address' ) ),
 			array( 'user', __( 'Details', 'begentle' ), __( 'Name, email, password', 'begentle' ), wc_get_account_endpoint_url( 'edit-account' ) ),
-			array( 'logout', __( 'Log out', 'begentle' ), __( 'See you soon', 'begentle' ), wc_logout_url() ),
 		);
 
 		echo '<div class="account-tiles">';
 		foreach ( $tiles as list( $icon, $title, $hint, $url ) ) {
 			printf(
-				'<a class="account-tile" href="%s">%s<span class="block text-sm font-bold">%s</span><span class="block text-xs text-muted">%s</span></a>',
+				'<a class="account-tile" href="%s">%s<span class="account-tile__title">%s</span><span class="account-tile__hint">%s</span></a>',
 				esc_url( $url ),
 				begentle_icon( $icon, 'mb-2 size-6' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				esc_html( $title ),
@@ -84,9 +99,12 @@ add_action(
 		}
 		echo '</div>';
 
-		$orders = wc_get_orders(
+		// Real orders only: unfinished block-checkout drafts are not something to show a customer.
+		$statuses = array_diff( array_keys( wc_get_order_statuses() ), array( 'wc-checkout-draft' ) );
+		$orders   = wc_get_orders(
 			array(
 				'customer' => get_current_user_id(),
+				'status'   => $statuses,
 				'limit'    => 3,
 				'orderby'  => 'date',
 				'order'    => 'DESC',
@@ -101,6 +119,7 @@ add_action(
 
 		if ( ! $orders ) {
 			echo '<div class="mt-4 rounded-2xl bg-mist p-8 text-center"><p class="text-muted">' . esc_html__( 'No orders yet. Your first one is waiting.', 'begentle' ) . '</p><a class="btn mt-4" href="' . esc_url( wc_get_page_permalink( 'shop' ) ) . '">' . esc_html__( 'Start shopping', 'begentle' ) . '</a></div>';
+			echo '</div>'; // .account-dashboard
 			return;
 		}
 
@@ -122,6 +141,16 @@ add_action(
 			);
 		}
 		echo '</div>';
+		echo '</div>'; // .account-dashboard
+	}
+);
+
+// The full Orders list should skip unfinished checkout drafts too.
+add_filter(
+	'woocommerce_my_account_my_orders_query',
+	function ( $args ) {
+		$args['status'] = array_diff( array_keys( wc_get_order_statuses() ), array( 'wc-checkout-draft' ) );
+		return $args;
 	}
 );
 
@@ -173,4 +202,70 @@ add_action(
 		echo '</ol>';
 	},
 	5
+);
+
+/*
+ * Addresses: both forms on one page, the first one already open, Billing / Shipping tabs and
+ * AJAX save (assets/js/main.js). WooCommerce's own form and save handler are reused: each form
+ * posts to its own /edit-address/{type}/ URL because the handler reads the type from the URL.
+ * Without JS the forms still submit normally.
+ */
+remove_action( 'woocommerce_account_edit-address_endpoint', 'woocommerce_account_edit_address' );
+add_action(
+	'woocommerce_account_edit-address_endpoint',
+	function ( $type ) {
+		if ( $type ) {
+			woocommerce_account_edit_address( $type ); // Single form (also where the forms post to).
+			return;
+		}
+
+		$types = array( 'billing' => __( 'Billing', 'begentle' ) );
+		if ( ! wc_ship_to_billing_address_only() && wc_shipping_enabled() ) {
+			$types['shipping'] = __( 'Shipping', 'begentle' );
+		}
+
+		$start = isset( $_GET['tab'] ) && isset( $types[ sanitize_key( $_GET['tab'] ) ] ) ? sanitize_key( $_GET['tab'] ) : 'billing'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		echo '<div class="address-tabs" data-tabs>';
+		echo '<p class="address-tabs__intro">' . esc_html__( 'Saved addresses fill in automatically at checkout.', 'begentle' ) . '</p>';
+
+		if ( count( $types ) > 1 ) {
+			echo '<div class="tab-list" role="tablist">';
+			foreach ( $types as $key => $label ) {
+				printf(
+					'<button type="button" role="tab" id="address-tab-%1$s" aria-controls="address-panel-%1$s" aria-selected="%2$s">%3$s</button>',
+					esc_attr( $key ),
+					$key === $start ? 'true' : 'false',
+					esc_html( $label )
+				);
+			}
+			echo '</div>';
+		}
+
+		foreach ( $types as $key => $label ) {
+			ob_start();
+			woocommerce_account_edit_address( $key );
+			$form = (string) ob_get_clean();
+			$form = preg_replace(
+				'/<form method="post"/',
+				'<form method="post" data-address-form="' . esc_attr( $key ) . '" action="' . esc_url( wc_get_endpoint_url( 'edit-address', $key ) ) . '"',
+				$form,
+				1
+			);
+
+			printf(
+				'<div role="tabpanel" id="address-panel-%1$s" aria-labelledby="address-tab-%1$s" %2$s>',
+				esc_attr( $key ),
+				$key === $start ? '' : 'hidden'
+			);
+			if ( 'shipping' === $key ) {
+				echo '<button type="button" class="copy-billing" data-copy-billing>' . esc_html__( 'Use my billing address', 'begentle' ) . '</button>';
+			}
+			echo '<p class="address-status" role="status" aria-live="polite"></p>';
+			echo $form; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce template output.
+			echo '</div>';
+		}
+
+		echo '</div>';
+	}
 );

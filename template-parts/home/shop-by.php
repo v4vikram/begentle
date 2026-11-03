@@ -9,34 +9,14 @@ if ( ! begentle_has_woo() ) {
 }
 
 $shop_url = wc_get_page_permalink( 'shop' );
-$symbol   = html_entity_decode( get_woocommerce_currency_symbol() );
-$bounds   = begentle_price_bounds();
 $prices   = array();
 
-// Buckets at 25 / 50 / 75% of the top price, rounded to one significant digit (3999 -> 1000, 2000, 3000).
-if ( $bounds['max'] >= 10 ) {
-	$limits = array();
-
-	foreach ( array( 0.25, 0.5, 0.75 ) as $share ) {
-		$value    = $bounds['max'] * $share;
-		$step     = 10 ** floor( log10( $value ) );
-		$limits[] = (int) ( round( $value / $step ) * $step );
-	}
-
-	$limits = array_values( array_unique( array_filter( $limits, fn( $limit ) => $limit > $bounds['min'] && $limit < $bounds['max'] ) ) );
-
-	foreach ( $limits as $limit ) {
-		$prices[] = array(
-			/* translators: %s: price */
-			sprintf( __( 'Under %s', 'begentle' ), $symbol . number_format_i18n( $limit ) ),
-			add_query_arg( 'max_price', $limit, $shop_url ),
-		);
-	}
-
-	if ( $limits ) {
-		$top      = end( $limits );
-		$prices[] = array( $symbol . number_format_i18n( $top ) . '+', add_query_arg( 'min_price', $top, $shop_url ) );
-	}
+// Same ranges as the filter drawer's price presets (inc/filters.php).
+foreach ( begentle_price_buckets() as $bucket ) {
+	$prices[] = array(
+		$bucket['label'],
+		add_query_arg( array_filter( array( 'min_price' => $bucket['min'], 'max_price' => $bucket['max'] ) ), $shop_url ),
+	);
 }
 
 $sizes = array();

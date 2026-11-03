@@ -275,6 +275,180 @@
 
 	syncCardCart();
 
+	// Product page: a clear message under the options instead of WooCommerce's browser alert
+	// when "Add to cart" is pressed before a size is chosen (or for an unavailable combination).
+	function showVariationHint($form, unavailable) {
+		var $table = $form.find('table.variations');
+		if (!$table.length) {
+			return;
+		}
+		var label = $form.find('.variations select').filter(function () {
+			return !this.value;
+		}).first().closest('tr').find('th label, .label label').first().text().trim().toLowerCase();
+		var params = window.wc_add_to_cart_variation_params || {};
+		var text = unavailable
+			? params.i18n_unavailable_text || 'This option is unavailable. Please choose another.'
+			: 'Please choose ' + (label ? 'a ' + label : 'an option') + ' first.';
+
+		$form.find('.variation-hint').remove();
+		$('<p class="variation-hint" role="alert"></p>').text(text).insertAfter($table);
+		$table.removeClass('is-shaking');
+		void $table[0].offsetWidth; // Restart the animation.
+		$table.addClass('is-shaking');
+	}
+
+	// Capture phase: runs before WooCommerce's own click handler (which shows the alert).
+	document.addEventListener(
+		'click',
+		function (e) {
+			var btn = e.target.closest && e.target.closest('.variations_form .single_add_to_cart_button');
+			if (!btn || !btn.classList.contains('disabled')) {
+				return;
+			}
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			showVariationHint($(btn).closest('form'), btn.classList.contains('wc-variation-is-unavailable'));
+		},
+		true
+	);
+
+	$(document).on('change found_variation', 'form.variations_form', function () {
+		$(this).find('.variation-hint').remove();
+	});
+
+	// My Account menu on phones scrolls sideways: small arrows + faded edges show there is more,
+	// and the current page's item is scrolled into view.
+	$('.woocommerce-MyAccount-navigation').each(function () {
+		var $nav = $(this);
+		var list = $nav.find('ul').get(0);
+		if (!list) {
+			return;
+		}
+		var arrow = function (dir, label, path) {
+			return $('<button type="button" tabindex="-1" class="nav-scroll nav-scroll--' + dir + '" aria-hidden="true"></button>')
+				.attr('title', label)
+				.html('<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + path + '"/></svg>');
+		};
+		var $prev = arrow('prev', 'Scroll left', 'm15 6-6 6 6 6');
+		var $next = arrow('next', 'Scroll right', 'm9 6 6 6-6 6');
+		var update = function () {
+			var max = list.scrollWidth - list.clientWidth;
+			$nav.toggleClass('can-left', list.scrollLeft > 2).toggleClass('can-right', list.scrollLeft < max - 2);
+		};
+
+		$nav.addClass('has-scroll').append($prev, $next);
+		$prev.on('click', function () {
+			list.scrollBy({ left: -160, behavior: 'smooth' });
+		});
+		$next.on('click', function () {
+			list.scrollBy({ left: 160, behavior: 'smooth' });
+		});
+		$(list).on('scroll', update);
+		$(window).on('resize', update);
+
+		var active = $(list).find('.is-active').get(0);
+		if (active && list.scrollWidth > list.clientWidth) {
+			list.scrollLeft = active.offsetLeft - list.offsetLeft - 24;
+		}
+		update();
+	});
+
+	// My Account > Addresses: save without leaving the page. The form posts to WooCommerce's own
+	// handler (its action is /edit-address/{type}/); we read its success / error notice from the reply.
+	$(document).on('submit', 'form[data-address-form]', function (e) {
+		if (!window.fetch || !window.FormData || !window.DOMParser) {
+			return; // Normal submit.
+		}
+		e.preventDefault();
+
+		var form = this;
+		var $form = $(form);
+		var $panel = $form.closest('[role="tabpanel"]');
+		var $status = $panel.find('.address-status');
+		var $btn = $form.find('[name="save_address"]').addClass('is-loading');
+
+		$panel.find('.woocommerce-error').remove();
+		$status.removeClass('is-saved').text('');
+
+		// getAttribute: Woo's form has an <input name="action">, which shadows form.action.
+		fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form), credentials: 'same-origin' })
+			.then(function (response) {
+				return response.text();
+			})
+			.then(function (html) {
+				var doc = new DOMParser().parseFromString(html, 'text/html');
+				var error = doc.querySelector('.woocommerce-error');
+				var saved = doc.querySelector('.woocommerce-message');
+
+				if (error) {
+					$(document.importNode(error, true)).insertBefore($form);
+					$panel[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+					return;
+				}
+				if (!saved) {
+					throw new Error('unexpected response');
+				}
+				$status.addClass('is-saved').text($(saved).text().trim() || 'Address saved.');
+				toast('Address saved');
+			})
+			.catch(function () {
+				form.submit(); // Do it the normal way.
+			})
+			.finally(function () {
+				$btn.removeClass('is-loading');
+			});
+	});
+
+	// Shipping tab: copy the billing form's values (country first, then state, whose list depends on it).
+	$(document).on('click', '[data-copy-billing]', function () {
+		var $billing = $('#address-panel-billing');
+		var $shipping = $('#address-panel-shipping');
+
+		$billing.find('input, select, textarea').each(function () {
+			if (!this.name || this.name.indexOf('billing_') !== 0 || this.type === 'hidden' || this.name === 'billing_state') {
+				return;
+			}
+			var $target = $shipping.find('[name="shipping_' + this.name.slice(8) + '"]');
+			if ($target.length) {
+				$target.val($(this).val());
+			}
+		});
+
+		var state = $billing.find('[name="billing_state"]').val();
+		$shipping.find('[name="shipping_country"]').trigger('change');
+		setTimeout(function () {
+			$shipping.find('[name="shipping_state"]').val(state).trigger('change');
+		}, 0);
+		toast('Billing address copied. Save to keep it.', 2500);
+	});
+
+	// Filter drawer price presets: fill Min / Max and fire "change" so the live shop filter
+	// (shop-filter.js) applies it. Tapping the active preset clears the range.
+	function syncPricePresets($form) {
+		var min = $form.find('input[name="min_price"]').val() || '';
+		var max = $form.find('input[name="max_price"]').val() || '';
+		$form.find('.price-preset').each(function () {
+			var on = $(this).attr('data-min') === min && $(this).attr('data-max') === max && (min || max);
+			$(this).attr('aria-pressed', on ? 'true' : 'false');
+		});
+	}
+
+	$(document).on('click', '.price-preset', function () {
+		var $form = $(this).closest('form');
+		var active = $(this).attr('aria-pressed') === 'true';
+		var $min = $form.find('input[name="min_price"]');
+		var $max = $form.find('input[name="max_price"]');
+
+		$min.val(active ? '' : $(this).attr('data-min'));
+		$max.val(active ? '' : $(this).attr('data-max'));
+		syncPricePresets($form);
+		$max[0].dispatchEvent(new Event('change', { bubbles: true }));
+	});
+
+	$(document).on('input change', '.filter-form input[name="min_price"], .filter-form input[name="max_price"]', function () {
+		syncPricePresets($(this).closest('form'));
+	});
+
 	// My Account (logged out): show Login or Register, with links to switch between them.
 	var $auth = $('#customer_login');
 	if ($auth.length && $auth.find('.u-column2').length) {
@@ -542,9 +716,10 @@
 
 		$bar.on('click', 'button', function () {
 			if ($mainBtn.is('.disabled')) {
-				// Variation not chosen yet: take the user to the size picker.
+				// Variation not chosen yet: take the user to the size picker and say why.
 				var top = $mainBtn.closest('form.cart').offset().top - 90;
 				window.scrollTo({ top: top, behavior: 'smooth' });
+				showVariationHint($mainBtn.closest('form'), $mainBtn.is('.wc-variation-is-unavailable'));
 				return;
 			}
 			$mainBtn.trigger('click');

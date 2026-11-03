@@ -66,7 +66,7 @@ add_filter(
 
 /* ---------- Product card (shop loop) ---------- */
 
-// Tap-to-open card: no rating, no add-to-cart button (jeans need a size first).
+// Tap-to-open card: no rating and no default add-to-cart button (most products need a size first).
 remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10 );
 remove_action( 'woocommerce_after_shop_loop_item_title', 'woocommerce_template_loop_rating', 5 );
 remove_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_show_product_loop_sale_flash', 10 );
@@ -134,6 +134,46 @@ function begentle_loop_media() {
 
 	echo '</span>';
 }
+
+/* ---------- Product page: a size is always pre-selected ---------- */
+
+// Variable products open with an option chosen, so "Add to cart" works straight away.
+// A product's own "Default form values" (set in the product editor) always win; otherwise the
+// first in-stock variation (usually the smallest size) is used.
+add_filter(
+	'woocommerce_product_get_default_attributes',
+	function ( $defaults, $product ) {
+		static $busy = false;
+
+		if ( $defaults || $busy || is_admin() || ! $product instanceof WC_Product_Variable || ! is_product() ) {
+			return $defaults;
+		}
+
+		$busy = true;
+		foreach ( $product->get_available_variations() as $variation ) {
+			if ( empty( $variation['is_in_stock'] ) || empty( $variation['is_purchasable'] ) ) {
+				continue;
+			}
+			$picked = array();
+			foreach ( $variation['attributes'] as $key => $value ) {
+				if ( '' === $value ) {
+					$picked = array(); // "Any …" variation: can't pre-select it, try the next.
+					break;
+				}
+				$picked[ str_replace( 'attribute_', '', $key ) ] = $value;
+			}
+			if ( $picked ) {
+				$defaults = $picked;
+				break;
+			}
+		}
+		$busy = false;
+
+		return $defaults;
+	},
+	10,
+	2
+);
 
 /* ---------- Card actions: quick add to cart + share ---------- */
 

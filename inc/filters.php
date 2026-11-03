@@ -78,7 +78,8 @@ function begentle_price_bounds(): array {
 	if ( false === $bounds ) {
 		global $wpdb;
 
-		$row    = $wpdb->get_row( "SELECT MIN(min_price) AS lo, MAX(max_price) AS hi FROM {$wpdb->prefix}wc_product_meta_lookup WHERE min_price > 0" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// Published products only: the lookup table keeps rows for trashed / draft products too.
+		$row    = $wpdb->get_row( "SELECT MIN(l.min_price) AS lo, MAX(l.max_price) AS hi FROM {$wpdb->prefix}wc_product_meta_lookup l INNER JOIN {$wpdb->posts} p ON p.ID = l.product_id AND p.post_type = 'product' AND p.post_status = 'publish' WHERE l.min_price > 0" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$bounds = array(
 			'min' => $row && $row->lo ? (int) floor( $row->lo ) : 0,
 			'max' => $row && $row->hi ? (int) ceil( $row->hi ) : 0,
@@ -88,6 +89,53 @@ function begentle_price_bounds(): array {
 
 	return $bounds;
 }
+/**
+ * Quick price ranges built from the catalogue's top price: "Under X" at ~50% and ~75%
+ * (rounded to one significant digit, e.g. 1499 -> 700, 1000) plus "X+" from the highest one.
+ * Used by the filter drawer presets and the home "Shop by price" block.
+ *
+ * @return array<int,array{label:string,min:string,max:string}>
+ */
+function begentle_price_buckets(): array {
+	$bounds = begentle_price_bounds();
+
+	if ( $bounds['max'] < 10 ) {
+		return array();
+	}
+
+	$symbol = html_entity_decode( get_woocommerce_currency_symbol() );
+	$limits = array();
+
+	foreach ( array( 0.25, 0.5, 0.75 ) as $share ) {
+		$value    = $bounds['max'] * $share;
+		$step     = 10 ** floor( log10( $value ) );
+		$limits[] = (int) ( round( $value / $step ) * $step );
+	}
+
+	$limits = array_values( array_unique( array_filter( $limits, fn( $limit ) => $limit > $bounds['min'] && $limit < $bounds['max'] ) ) );
+	$out    = array();
+
+	foreach ( $limits as $limit ) {
+		$out[] = array(
+			/* translators: %s: price */
+			'label' => sprintf( __( 'Under %s', 'begentle' ), $symbol . number_format_i18n( $limit ) ),
+			'min'   => '',
+			'max'   => (string) $limit,
+		);
+	}
+
+	if ( $limits ) {
+		$top   = end( $limits );
+		$out[] = array(
+			'label' => $symbol . number_format_i18n( $top ) . '+',
+			'min'   => (string) $top,
+			'max'   => '',
+		);
+	}
+
+	return $out;
+}
+
 add_action( 'woocommerce_update_product', fn() => delete_transient( 'begentle_price_bounds' ) );
 add_action( 'woocommerce_new_product', fn() => delete_transient( 'begentle_price_bounds' ) );
 

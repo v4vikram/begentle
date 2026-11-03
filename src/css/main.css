@@ -3100,3 +3100,204 @@
 		text-underline-offset: 3px;
 	}
 }
+
+/* ------------------------------------------------ filter price presets */
+@layer components {
+	.price-preset {
+		display: inline-grid;
+		height: 2.5rem;
+		padding: 0 1rem;
+		place-items: center;
+		border: 1px solid var(--color-line);
+		border-radius: 999px;
+		font-size: 0.875rem;
+		font-weight: 600;
+		transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+	}
+	.price-preset:hover {
+		border-color: var(--color-ink);
+	}
+	.price-preset[aria-pressed="true"] {
+		background: var(--color-ink);
+		border-color: var(--color-ink);
+		color: #fff;
+	}
+}
+
+/* ------------------------------------------------- account dashboard v2 */
+@layer components {
+	/* Woo's two intro paragraphs ("Hello … / From your account dashboard …"): our greeting replaces them. */
+	.woocommerce-MyAccount-content > p:has(~ .account-dashboard) {
+		display: none;
+	}
+	.account-hello h2 {
+		margin: 0;
+		font-size: 1.5rem;
+		font-weight: 800;
+		letter-spacing: -0.01em;
+	}
+	.account-hello p {
+		margin-top: 0.25rem;
+		font-size: 0.9rem;
+		color: var(--color-muted);
+	}
+	.account-tiles {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+	.account-tile {
+		padding: 0.9rem 0.5rem;
+		text-align: center;
+	}
+	.account-tile svg {
+		margin-inline: auto;
+	}
+	.account-tile__title {
+		display: block;
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+	.account-tile__hint {
+		display: none;
+		margin-top: 0.15rem;
+		font-size: 0.75rem;
+		color: var(--color-muted);
+	}
+	@media (min-width: 768px) {
+		.account-tile {
+			padding: 1rem;
+			text-align: left;
+		}
+		.account-tile svg {
+			margin-inline: 0;
+		}
+		.account-tile__hint {
+			display: block;
+		}
+	}
+
+	/* Phone menu: sideways scroll with arrows and faded edges. */
+	.woocommerce-MyAccount-navigation.has-scroll {
+		position: relative;
+	}
+	.woocommerce-MyAccount-navigation ul {
+		scroll-behavior: smooth;
+		scrollbar-width: none;
+	}
+	.woocommerce-MyAccount-navigation ul::-webkit-scrollbar {
+		display: none;
+	}
+	.has-scroll.can-right ul {
+		-webkit-mask-image: linear-gradient(to right, #000 80%, transparent);
+		mask-image: linear-gradient(to right, #000 80%, transparent);
+	}
+	.has-scroll.can-left ul {
+		-webkit-mask-image: linear-gradient(to left, #000 80%, transparent);
+		mask-image: linear-gradient(to left, #000 80%, transparent);
+	}
+	.has-scroll.can-left.can-right ul {
+		-webkit-mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+		mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+	}
+	.nav-scroll {
+		position: absolute;
+		top: 50%;
+		z-index: 2;
+		display: none;
+		width: 1.75rem;
+		height: 1.75rem;
+		place-items: center;
+		border: 1px solid var(--color-line);
+		border-radius: 999px;
+		background: #fff;
+		color: var(--color-ink);
+		transform: translateY(-50%);
+	}
+	.nav-scroll--prev {
+		left: 0;
+	}
+	.nav-scroll--next {
+		right: 0;
+	}
+	.can-left .nav-scroll--prev,
+	.can-right .nav-scroll--next {
+		display: grid;
+	}
+	@media (min-width: 1024px) {
+		.nav-scroll {
+			display: none !important;
+		}
+	}
+}
+
+/* ------------------------------------------------ variation hint */
+@layer components {
+	.variation-hint {
+		margin: -0.25rem 0 1rem;
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: #c2272d;
+	}
+	table.variations.is-shaking {
+		animation: begentle-shake 0.35s ease;
+	}
+	@keyframes begentle-shake {
+		25% {
+			transform: translateX(-4px);
+		}
+		50% {
+			transform: translateX(4px);
+		}
+		75% {
+			transform: translateX(-2px);
+		}
+	}
+}
+
+/* ------------------------------------------------ addresses: tabs + inline forms */
+@layer components {
+	.address-tabs__intro {
+		margin-bottom: 1rem;
+		font-size: 0.9rem;
+		color: var(--color-muted);
+	}
+	/* The tab already says which address it is. */
+	.address-tabs form > h2 {
+		display: none;
+	}
+	.address-tabs [role="tabpanel"] {
+		padding: 1.25rem;
+		border: 1px solid var(--color-line);
+		border-radius: 1.25rem;
+	}
+	.address-tabs .tab-list {
+		margin-inline: 0;
+		padding-inline: 0;
+	}
+	.copy-billing {
+		margin-bottom: 1rem;
+		padding: 0.5rem 1rem;
+		border: 1px solid var(--color-line);
+		border-radius: 999px;
+		font-size: 0.8rem;
+		font-weight: 600;
+		transition: border-color 0.15s;
+	}
+	.copy-billing:hover {
+		border-color: var(--color-ink);
+	}
+	.address-status:empty {
+		display: none;
+	}
+	.address-status.is-saved {
+		margin-bottom: 1rem;
+		padding: 0.75rem 1rem;
+		border-radius: 0.75rem;
+		background: #e3f6ea;
+		color: #17653a;
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+	.address-status.is-saved::before {
+		content: "✓ ";
+	}
+}
