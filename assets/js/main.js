@@ -74,12 +74,9 @@
 		}
 	});
 
-	// Woo fires this after any AJAX add to cart. Adds from a product card stay on the page
-	// (icon turns filled + a toast) so browsing isn't interrupted.
-	$(document.body).on('added_to_cart', function (e, fragments, hash, $button) {
-		if ($button && $button.closest && $button.closest('.card-actions').length) {
-			return;
-		}
+	// Woo fires this after any AJAX add to cart (product page, cards, quick add):
+	// open the bag drawer so View cart / Checkout are one tap away.
+	$(document.body).on('added_to_cart', function () {
 		openDrawer('cart');
 	});
 
@@ -144,7 +141,6 @@
 					$cartIcon.removeClass('is-pop');
 				}, 400);
 				closeQuickAdd();
-				toast(cartParams.i18n.added || 'Added');
 			})
 			.fail(function () {
 				toast(cartParams.i18n.error || 'Error', 2500);
