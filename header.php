@@ -23,7 +23,7 @@ $announcement = trim( (string) begentle_mod( 'announcement' ) );
 	<div class="bg-ink px-4 py-2 text-center text-xs font-medium text-white"><?php echo esc_html( $announcement ); ?></div>
 <?php endif; ?>
 
-<header id="site-header" class="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
+<header id="site-header" class="sticky top-0 z-40 bg-paper/90 backdrop-blur">
 	<div class="mx-auto grid h-14 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 md:h-16 md:px-4">
 
 		<div class="site-logo flex items-center justify-self-start">

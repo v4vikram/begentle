@@ -154,6 +154,13 @@
 			padding-left: 0;
 		}
 	}
+	/* Desktop: bigger logo (fits the 64px header). */
+	@media (min-width: 1024px) {
+		.site-logo .custom-logo,
+		.site-logo__link img {
+			height: 60px;
+		}
+	}
 	.desktop-nav {
 		display: flex;
 		gap: 1.75rem;
