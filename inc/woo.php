@@ -240,6 +240,7 @@ function begentle_quick_add_options( WC_Product $product ): ?array {
 			'id'       => (int) $variation['variation_id'],
 			'label'    => implode( ' / ', $labels ),
 			'in_stock' => ! empty( $variation['is_in_stock'] ) && ! empty( $variation['is_purchasable'] ),
+			'price'    => (float) $variation['display_price'],
 		);
 	}
 
@@ -316,10 +317,11 @@ add_action(
 				);
 				foreach ( $quick['options'] as $option ) {
 					printf(
-						'<button type="button" class="quick-add__opt" data-add-id="%1$d" %2$s>%3$s</button>',
+						'<button type="button" class="quick-add__opt" data-add-id="%1$d" %2$s>%3$s<span class="quick-add__price">%4$s</span></button>',
 						(int) $option['id'],
 						$option['in_stock'] ? '' : 'disabled',
-						esc_html( $option['label'] )
+						esc_html( $option['label'] ),
+						$option['price'] > 0 ? wp_kses_post( wc_price( $option['price'] ) ) : ''
 					);
 				}
 				echo '</div></div>';

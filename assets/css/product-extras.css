@@ -1,0 +1,163 @@
+/* Prices + scent profile (inc/fragrance.php). Plain CSS, no build step needed. */
+
+.price-from {
+	font-size: 0.8em;
+	font-weight: 500;
+	color: var(--color-muted, #6b6a68);
+	margin-right: 0.15em;
+}
+
+/* Quick add: size on the left, price under it. */
+.quick-add__opt {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: auto !important;
+	min-height: 2.75rem;
+	padding: 0.35rem 0.85rem !important;
+	line-height: 1.15;
+}
+.quick-add__price {
+	font-size: 0.7rem;
+	font-weight: 500;
+	opacity: 0.7;
+}
+.quick-add__price .woocommerce-Price-amount {
+	font-weight: inherit;
+}
+
+/* Scent profile card */
+.scent-profile {
+	margin: 1.25rem 0 1.5rem;
+	padding: 1rem 1.1rem;
+	border: 1px solid var(--color-line, #e8e6e3);
+	border-radius: 1rem;
+	background: var(--color-mist, #f6f5f3);
+}
+.scent-profile__title {
+	margin: 0 0 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--color-muted, #6b6a68);
+}
+.scent-profile dl,
+.scent-profile dd {
+	margin: 0;
+}
+
+.scent-notes {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.5rem;
+}
+.scent-notes__row {
+	padding: 0.6rem 0.7rem;
+	border-radius: 0.75rem;
+	background: var(--color-paper, #fff);
+}
+.scent-notes__row dt {
+	font-size: 0.7rem;
+	font-weight: 600;
+	color: var(--color-muted, #6b6a68);
+}
+.scent-notes__row dd {
+	margin-top: 0.15rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.scent-meters {
+	display: grid;
+	gap: 0.55rem;
+	margin-top: 0.9rem !important;
+}
+.scent-meter {
+	display: grid;
+	grid-template-columns: 6.5rem 1fr;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 0.85rem;
+}
+.scent-meter dt {
+	font-weight: 600;
+}
+.scent-meter dd {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+.scent-meter__dots {
+	display: inline-flex;
+	gap: 0.25rem;
+}
+.scent-meter__dot {
+	width: 1.6rem;
+	height: 0.4rem;
+	border-radius: 999px;
+	background: var(--color-line, #e8e6e3);
+}
+.scent-meter__dot.is-on {
+	background: var(--color-ink, #0c0c0d);
+}
+.scent-meter__text {
+	color: var(--color-muted, #6b6a68);
+	font-size: 0.8rem;
+}
+
+.scent-tags {
+	display: flex;
+	align-items: baseline;
+	gap: 0.75rem;
+	margin-top: 0.8rem;
+	font-size: 0.85rem;
+}
+.scent-tags__label {
+	flex: 0 0 6.5rem;
+	margin: 0;
+	font-weight: 600;
+}
+.scent-tags ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.scent-tags li {
+	padding: 0.2rem 0.65rem;
+	border: 1px solid var(--color-line, #e8e6e3);
+	border-radius: 999px;
+	background: var(--color-paper, #fff);
+	font-size: 0.78rem;
+	font-weight: 600;
+}
+
+@media (max-width: 420px) {
+	.scent-notes {
+		grid-template-columns: 1fr;
+	}
+	.scent-notes__row {
+		display: flex;
+		gap: 0.75rem;
+		align-items: baseline;
+	}
+	.scent-notes__row dt {
+		flex: 0 0 3rem;
+	}
+	.scent-notes__row dd {
+		margin-top: 0;
+	}
+	.scent-meter,
+	.scent-tags {
+		grid-template-columns: 5.5rem 1fr;
+	}
+	.scent-tags__label {
+		flex-basis: 5.5rem;
+	}
+}
