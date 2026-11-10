@@ -14,6 +14,7 @@ $blog_topics = $blog_url ? array_slice( begentle_blog_categories(), 0, 4 ) : arr
 			<?php if ( get_bloginfo( 'description' ) ) : ?>
 				<p class="mt-2 max-w-xs text-sm text-muted"><?php bloginfo( 'description' ); ?></p>
 			<?php endif; ?>
+			<?php if ( function_exists( 'begentle_footer_contact' ) ) { begentle_footer_contact(); } ?>
 		</div>
 
 		<?php if ( $footer_cats ) : ?>
@@ -55,9 +56,10 @@ $blog_topics = $blog_url ? array_slice( begentle_blog_categories(), 0, 4 ) : arr
 		<?php endif; ?>
 	</div>
 	<div class="border-t border-line">
-		<p class="mx-auto max-w-7xl px-4 py-4 text-xs text-muted">
-			&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>
-		</p>
+		<div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4">
+			<p class="text-xs text-muted">&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?></p>
+			<?php if ( function_exists( 'begentle_footer_payments' ) ) { begentle_footer_payments(); } ?>
+		</div>
 	</div>
 </footer>
 
