@@ -120,8 +120,11 @@ add_filter(
 		$free_min = (float) begentle_checkout_mod( 'free_shipping_min' );
 		$goods    = (float) ( $package['contents_cost'] ?? 0 );
 
+		// Paid delivery methods this applies to: Woo's flat rate and Shiprocket's rate ("Flat Rate", ₹40).
+		$methods = (array) apply_filters( 'begentle_paid_shipping_methods', array( 'flat_rate', 'shiprocket_woocommerce_shipping' ) );
+
 		foreach ( $rates as $rate ) {
-			if ( 'flat_rate' !== $rate->get_method_id() ) {
+			if ( ! in_array( $rate->get_method_id(), $methods, true ) ) {
 				continue;
 			}
 
@@ -139,7 +142,7 @@ add_filter(
 
 		return $rates;
 	},
-	20,
+	9999, // After Shiprocket, which builds its rate late.
 	2
 );
 
@@ -198,20 +201,30 @@ add_filter(
 	}
 );
 
-// COD description (blocks read it from the settings, classic from the gateway): only when the admin left it empty.
+// COD description (blocks read it from the settings, classic from the gateway). Woo's stock
+// sentence is replaced; the fee note is added to whatever the admin wrote, so it always matches the fee.
 add_filter(
 	'option_woocommerce_cod_settings',
 	function ( $settings ) {
 		if ( ! is_array( $settings ) || is_admin() ) {
 			return $settings;
 		}
-		if ( '' === trim( (string) ( $settings['description'] ?? '' ) ) || 'Pay with cash upon delivery.' === ( $settings['description'] ?? '' ) ) {
-			$fee = (int) begentle_checkout_mod( 'cod_fee' );
-			$settings['description'] = $fee > 0
-				/* translators: %s: COD fee, e.g. ₹49 */
-				? sprintf( __( 'Pay in cash or UPI when your order arrives. A %s COD fee applies, pay online to skip it.', 'begentle' ), html_entity_decode( wp_strip_all_tags( wc_price( $fee ) ) ) )
-				: __( 'Pay in cash or UPI when your order arrives.', 'begentle' );
+
+		$desc = trim( (string) ( $settings['description'] ?? '' ) );
+		if ( '' === $desc || 'Pay with cash upon delivery.' === $desc ) {
+			$desc = __( 'Pay in cash or UPI when your order arrives.', 'begentle' );
 		}
+
+		$fee = (int) begentle_checkout_mod( 'cod_fee' );
+		if ( $fee > 0 ) {
+			$desc .= ' ' . sprintf(
+				/* translators: %s: COD fee, e.g. ₹49 */
+				__( 'A %s COD fee applies. Pay online to skip it.', 'begentle' ),
+				html_entity_decode( wp_strip_all_tags( wc_price( $fee ) ), ENT_QUOTES, 'UTF-8' )
+			);
+		}
+
+		$settings['description'] = $desc;
 		return $settings;
 	}
 );
@@ -239,8 +252,9 @@ add_action(
 );
 
 // Block checkout: the JS (assets/js/checkout.js) reports the picked payment method so totals refresh.
+// On init: woocommerce_blocks_loaded has already fired by the time a theme loads.
 add_action(
-	'woocommerce_blocks_loaded',
+	'init',
 	function () {
 		if ( ! function_exists( 'woocommerce_store_api_register_update_callback' ) ) {
 			return;
