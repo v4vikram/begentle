@@ -136,7 +136,7 @@
 	/* ---- Header / navigation ---- */
 	.site-logo .custom-logo,
 	.site-logo__link img {
-		height: 26px;
+		height: 50px; /* phones: header is 56px tall */
 		width: auto;
 		max-width: none;
 	}
